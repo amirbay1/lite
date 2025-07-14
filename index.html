@@ -161,6 +161,22 @@
             margin-left: 5px; /* Space between icon and text */
         }
 
+        .source-tag { /* New style for source tag */
+            position: absolute;
+            top: 70px; /* Position below national tag if present, or below type tag */
+            left: 10px;
+            background-color: #607d8b; /* A distinct color for source */
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .source-tag i {
+            margin-left: 5px;
+        }
+
         .proxy-card h4 {
             margin: 0 0 5px; /* Reduced margin to fit details */
             font-size: 18px;
@@ -467,27 +483,11 @@
 
         <div class="filter-bar">
             <div class="filter-group">
-                <label for="protocolFilter">پروتکل:</label>
-                <select id="protocolFilter">
-                    <option value="all">همه پروتکل‌ها</option>
-                    <option value="vmess">VMess</option>
-                    <option value="vless">VLess</option>
-                    <option value="trojan">Trojan</option>
-                    <option value="ss">Shadowsocks</option>
-                    <option value="ssr">ShadowsocksR</option>
-                    <option value="warp">WARP</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="countryFilter">کشور:</label>
-                <select id="countryFilter">
-                    <option value="all">همه کشورها</option>
+                <label for="sourceFilter">مخزن:</label>
+                <select id="sourceFilter">
+                    <option value="all">همه مخازن</option>
                     <!-- Options will be populated by JavaScript -->
                 </select>
-            </div>
-            <div class="filter-group">
-                <input type="checkbox" id="nationalFilter">
-                <label for="nationalFilter">فقط کانفیگ‌های ملی</label>
             </div>
             <button class="refresh-button" id="copyAllButton" style="background-color: #0088cc; margin-top: 0; display: none;"><i class="fas fa-copy"></i> کپی همه کانفیگ‌ها</button>
         </div>
@@ -540,74 +540,12 @@
             "Vietnam"
         ];
 
-        // Mapping of country names (exactly as returned by getCountry) to 2-letter ISO codes for flags
-        // This map is now only used for displaying Persian country names in the filter dropdown.
-        const countryCodeMap = {
-            "al": "آلبانی", "ar": "آرژانتین", "am": "ارمنستان", "au": "استرالیا", "at": "اتریش",
-            "az": "آذربایجان", "bh": "بحرین", "be": "بلژیک", "bo": "بولیوی",
-            "ba": "بوسنی و هرزگوین",
-            "br": "برزیل", "bg": "بلغارستان", "ca": "کانادا", "cl": "شیلی", "cn": "چین", "co": "کلمبیا",
-            "cr": "کاستاریکا",
-            "hr": "کرواسی", "cy": "قبرس", "cz": "جمهوری چک",
-            "dk": "دانمارک", "ec": "اکوادور", "ee": "استونی", "fi": "فنلاند", "fr": "فرانسه", "de": "آلمان",
-            "gi": "جبل‌الطارق", "gr": "یونان", "hk": "هنگ کنگ",
-            "hu": "مجارستان", "is": "ایسلند", "in": "هند", "id": "اندونزی", "ir": "ایران", "ie": "ایرلند", "il": "اسرائیل",
-            "it": "ایتالیا", "jp": "ژاپن", "kz": "قزاقستان", "lv": "لتونی", "lt": "لیتوانی", "lu": "لوکزامبورگ", "my": "مالزی", "mt": "مالت",
-            "mu": "موریس", "mx": "مکزیک", "md": "مولداوی",
-            "nz": "نیوزلند",
-            "mk": "مقدونیه شمالی",
-            "no": "نروژ", "py": "پاراگوئه", "pl": "لهستان", "pt": "پرتغال", "pr": "پورتوریکو", "ro": "رومانی",
-            "ru": "روسیه", "rs": "صربستان", "sc": "سیشل", "sg": "سنگاپور", "sk": "اسلواکی", "si": "اسلوونی",
-            "za": "آفریقای جنوبی",
-            "kr": "کره جنوبی",
-            "es": "اسپانیا", "se": "سوئد", "ch": "سوئیس", "tw": "تایوان",
-            "th": "تایلند",
-            "nl": "هلند",
-            "tr": "ترکیه", "ua": "اوکراین",
-            "ae": "امارات متحده عربی",
-            "gb": "بریتانیا",
-            "us": "ایالات متحده",
-            "vn": "ویتنام", "unknown": "نامعلوم"
-        };
-        
-        // New: Mapping of 2-letter ISO codes to Persian country names for display in filters
-        const countryNamesFa = {
-            "al": "آلبانی", "ar": "آرژانتین", "am": "ارمنستان", "au": "استرالیا", "at": "اتریش",
-            "az": "آذربایجان", "bh": "بحرین", "be": "بلژیک", "bo": "بولیوی",
-            "ba": "بوسنی و هرزگوین",
-            "br": "برزیل", "bg": "بلغارستان", "ca": "کانادا", "cl": "شیلی", "cn": "چین", "co": "کلمبیا",
-            "cr": "کاستاریکا",
-            "hr": "کرواسی", "cy": "قبرس", "cz": "جمهوری چک",
-            "dk": "دانمارک", "ec": "اکوادور", "ee": "استونی", "fi": "فنلاند", "fr": "فرانسه", "de": "آلمان",
-            "gi": "جبل‌الطارق", "gr": "یونان", "hk": "هنگ کنگ",
-            "hu": "مجارستان", "is": "ایسلند", "in": "هند", "id": "اندونزی", "ir": "ایران", "ie": "ایرلند", "il": "اسرائیل",
-            "it": "ایتالیا", "jp": "ژاپن", "kz": "قزاقستان", "lv": "لتونی", "lt": "لیتوانی", "lu": "لوکزامبورگ", "my": "مالزی", "mt": "مالت",
-            "mu": "موریس", "mx": "مکزیک", "md": "مولداوی",
-            "nz": "نیوزلند",
-            "mk": "مقدونیه شمالی",
-            "no": "نروژ", "py": "پاراگوئه", "pl": "لهستان", "pt": "پرتغال", "pr": "پورتوریکو", "ro": "رومانی",
-            "ru": "روسیه", "rs": "صربستان", "sc": "سیشل", "sg": "سنگاپور", "sk": "اسلواکی", "si": "اسلوونی",
-            "za": "آفریقای جنوبی",
-            "kr": "کره جنوبی",
-            "es": "اسپانیا", "se": "سوئد", "ch": "سوئیس", "tw": "تایوان",
-            "th": "تایلند",
-            "nl": "هلند",
-            "tr": "ترکیه", "ua": "اوکراین",
-            "ae": "امارات متحده عربی",
-            "gb": "بریتانیا",
-            "us": "ایالات متحده",
-            "vn": "ویتنام", "unknown": "نامعلوم"
-        };
-
-
         // DOM elements
         const proxiesDiv = document.getElementById('proxies');
         const proxyCountSpan = document.getElementById('proxyCount');
         const lastUpdatedDateSpan = document.getElementById('lastUpdatedDate');
         const loadingMoreDiv = document.getElementById('loadingMore');
-        const protocolFilterSelect = document.getElementById('protocolFilter');
-        const countryFilterSelect = document.getElementById('countryFilter');
-        const nationalFilterCheckbox = document.getElementById('nationalFilter'); // New: Get national filter checkbox
+        const sourceFilterSelect = document.getElementById('sourceFilter'); // New: Get source filter select
         const updateButton = document.getElementById('updateButton');
         const copyAllButton = document.getElementById('copyAllButton');
         const loadingSpinner = document.getElementById('loading');
@@ -619,7 +557,7 @@
         const qrModal = document.getElementById('qrModal');
         const qrModalClose = document.getElementById('qrModalClose');
         const qrCanvas = document.getElementById('qrCanvas');
-        const filterBar = document.querySelector('.filter-bar'); // Get reference to filter bar
+        const filterBar = document.querySelector('.filter-bar');
 
 
         let allConfigurations = [];
@@ -630,61 +568,62 @@
         let timerInterval;
 
         const CACHE_KEY = 'v2ray_configs_cache';
-        const CACHE_EXPIRATION_MS = 240 * 600 * 600 * 10000; // 24 hours in milliseconds
+        const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
         // Specific URL for Iran configs from SoliSpirit, to force its country to "Iran"
         const IRAN_CONFIG_URL = "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt";
 
-        // List of V2Ray/Xray URLs to fetch
+        // List of V2Ray/Xray URLs to fetch with descriptive names
         const directUrls = [
-            "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt",
-            "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm",
-            "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt",
-            "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt",
-            "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/refs/heads/main/configs/proxy_configs.txt",
-            "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp",
-            "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt",
-            "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt",
-            "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt"
+            { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet Config" },
+            { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo Xray" },
+            { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m V2Ray" },
+            { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland Aggregator" },
+            { url: "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/refs/heads/main/configs/proxy_configs.txt", name: "4n0nymou3 Fetcher" },
+            { url: "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp", name: "ircfspace WARP" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP OpenProxy" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP Trojan" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP OpenProxy RAW" }
         ];
 
         const base64Urls = [
-            "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link",
-            "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity",
-            "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt",
-            "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt",
-            "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt",
-            "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt",
-            "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt"
+            { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe VPN-Fail" },
+            { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland Shadowsocks" },
+            { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet Clash" },
+            { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet FreeConfig App" },
+            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "davudsedft purvpn PC" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt", name: "HamedP OpenProxy Base64" },
+            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft purvpn Purkow" }
         ];
 
-     
+        // Add MahsaFreeConfig MTN/MCI
         for (let i = 1; i <= 4; i++) {
-            base64Urls.push(`https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`);
-            base64Urls.push(`https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`);
+            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}` });
+            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}` });
         }
 
         // Combined list of all URLs to fetch
         const allFetchUrls = [];
         const processedUrls = new Set();
 
-        directUrls.forEach(url => {
-            const rawUrl = convertToRawUrl(url.split('#')[0]);
+        directUrls.forEach(item => {
+            const rawUrl = convertToRawUrl(item.url.split('#')[0]);
             if (!processedUrls.has(rawUrl)) {
-                allFetchUrls.push({ url: rawUrl, decode: false });
+                allFetchUrls.push({ url: rawUrl, decode: false, sourceName: item.name });
                 processedUrls.add(rawUrl);
             }
         });
 
-        base64Urls.forEach(url => {
-            const rawUrl = convertToRawUrl(url.split('#')[0]);
+        base64Urls.forEach(item => {
+            const rawUrl = convertToRawUrl(item.url.split('#')[0]);
             if (!processedUrls.has(rawUrl)) {
-                allFetchUrls.push({ url: rawUrl, decode: true });
+                allFetchUrls.push({ url: rawUrl, decode: true, sourceName: item.name });
                 processedUrls.add(rawUrl);
             } else {
                 const existingEntry = allFetchUrls.find(entry => entry.url === rawUrl);
                 if (existingEntry) {
                     existingEntry.decode = true; // Ensure it's marked for decoding if it's in base64Urls
+                    existingEntry.sourceName = item.name; // Update source name if it's a duplicate but now base64
                 }
             }
         });
@@ -918,7 +857,7 @@
          * @returns {Array<Object>} Array of config objects {config: string, protocol: string, country: string, isNational: boolean}.
          */
         async function fetchContent(urlInfo) {
-            const { url, decode } = urlInfo;
+            const { url, decode, sourceName } = urlInfo; // Get sourceName here
             console.log(`Fetching from: ${url}, decode: ${decode}`);
             try {
                 const response = await fetch(url);
@@ -1015,7 +954,7 @@
                 
                 return linesToProcess.map(config => {
                     let detectedCountry = getCountry(config);
-                    let isNational = false; // Default to false
+                    let isNational = false;
                     // Force country to "Iran" and mark as national if the config came from the specific Iran URL
                     if (url === IRAN_CONFIG_URL) {
                         detectedCountry = 'Iran';
@@ -1025,7 +964,8 @@
                         config: config,
                         protocol: getProtocol(config),
                         country: detectedCountry,
-                        isNational: isNational // Add this property
+                        isNational: isNational,
+                        source: sourceName // Add source name to the config object
                     };
                 });
 
@@ -1117,49 +1057,22 @@
          */
         function updateFiltersAndCounts() {
             // Clear previous options except "همه"
-            protocolFilterSelect.innerHTML = `
-                <option value="all">همه پروتکل‌ها</option>
-                <option value="vmess">VMess</option>
-                <option value="vless">VLess</option>
-                <option value="trojan">Trojan</option>
-                <option value="ss">Shadowsocks</option>
-                <option value="ssr">ShadowsocksR</option>
-                <option value="warp">WARP</option>
-            `;
-            countryFilterSelect.innerHTML = '<option value="all">همه کشورها</option>';
+            sourceFilterSelect.innerHTML = '<option value="all">همه مخازن</option>'; // Only source filter
             
-            const countryCounts = {};
-            const protocolCounts = {};
+            const sourceCounts = {}; // New: Count sources
 
             allConfigurations.forEach(item => {
-                // Count countries
-                countryCounts[item.country] = (countryCounts[item.country] || 0) + 1;
-                // Count protocols
-                protocolCounts[item.protocol] = (protocolCounts[item.protocol] || 0) + 1;
+                sourceCounts[item.source] = (sourceCounts[item.source] || 0) + 1; // Count sources
             });
 
-            // Populate country filter
-            const sortedCountries = Object.keys(countryCounts).sort((a, b) => {
-                const nameA = countryNamesFa[a.toLowerCase()] || a; // Use `a.toLowerCase()` as key for countryNamesFa
-                const nameB = countryNamesFa[b.toLowerCase()] || b; // Use `b.toLowerCase()` as key for countryNamesFa
-                return nameA.localeCompare(nameB, 'fa', { sensitivity: 'base' });
-            });
+            // Populate source filter
+            const sortedSources = Object.keys(sourceCounts).sort((a, b) => a.localeCompare(b, 'fa', { sensitivity: 'base' }));
 
-            sortedCountries.forEach(countryName => {
+            sortedSources.forEach(sourceName => {
                 const option = document.createElement('option');
-                option.value = countryName;
-                const displayCountryName = countryNamesFa[countryName.toLowerCase()] || countryName; // Use countryName.toLowerCase() for lookup
-                option.textContent = `${displayCountryName} (${countryCounts[countryName]})`;
-                countryFilterSelect.appendChild(option);
-            });
-
-            // Update protocol filter counts
-            Array.from(protocolFilterSelect.options).forEach(option => {
-                if (option.value !== 'all' && protocolCounts[option.value]) {
-                    option.textContent = `${option.textContent.split('(')[0].trim()} (${protocolCounts[option.value]})`;
-                } else if (option.value !== 'all') {
-                    option.textContent = `${option.textContent.split('(')[0].trim()} (0)`;
-                }
+                option.value = sourceName;
+                option.textContent = `${sourceName} (${sourceCounts[sourceName]})`;
+                sourceFilterSelect.appendChild(option);
             });
 
             // Update total count
@@ -1173,16 +1086,12 @@
          * Applies the selected filters and re-renders the proxy list.
          */
         function applyFilters() {
-            const selectedProtocol = protocolFilterSelect.value;
-            const selectedCountry = countryFilterSelect.value;
-            const showNationalOnly = nationalFilterCheckbox.checked; // Get checkbox state
+            const selectedSource = sourceFilterSelect.value; // Get selected source
 
             filteredConfigurations = allConfigurations.filter(item => {
-                const matchesProtocol = selectedProtocol === 'all' || item.protocol === selectedProtocol;
-                const matchesCountry = selectedCountry === 'all' || item.country === selectedCountry;
-                const matchesNational = !showNationalOnly || item.isNational; // If checkbox is checked, only show national
+                const matchesSource = selectedSource === 'all' || item.source === selectedSource;
 
-                return matchesProtocol && matchesCountry && matchesNational;
+                return matchesSource; // Only filter by source
             });
 
             console.log(`Filtered configurations count: ${filteredConfigurations.length}`);
@@ -1210,17 +1119,27 @@
             typeTag.textContent = item.protocol.toUpperCase();
             card.appendChild(typeTag);
 
-            // National Tag (if applicable)
+            // Source Tag (new)
+            const sourceTag = document.createElement('span');
+            sourceTag.className = 'source-tag'; // Use new class for styling
+            sourceTag.innerHTML = `<i class="fas fa-code-branch"></i> ${item.source}`; // Using a branch icon
+            card.appendChild(sourceTag);
+
+            // National Tag (if applicable) - adjust its position if source tag is added
             if (item.isNational) {
                 const nationalTag = document.createElement('span');
                 nationalTag.className = 'national-tag';
                 nationalTag.innerHTML = '<i class="fas fa-flag"></i> ملی'; // Using a flag icon for national
+                // Adjust position if source tag is present. If source tag is at 70px, national tag can be at 40px
+                nationalTag.style.top = '40px'; 
                 card.appendChild(nationalTag);
             }
 
             // Config title
             const titleElement = document.createElement('h4');
             titleElement.textContent = displayTitle;
+            // Adjust padding for title if source tag is added
+            titleElement.style.paddingLeft = '100px'; // Keep existing padding
             card.appendChild(titleElement);
 
             // Optional: Display more details if available
@@ -1444,20 +1363,9 @@
         // window.onload is replaced by DOMContentLoaded for better practice.
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM Content Loaded. Initializing...');
-            // Add a check for countryNamesFa and countryCodeMap before using them
-            if (typeof countryNamesFa === 'undefined') {
-                console.error("countryNamesFa is not defined. Please ensure it's declared globally or within scope.");
-                // Potentially define a fallback or halt execution if critical
-            }
-            if (typeof countryCodeMap === 'undefined') {
-                console.error("countryCodeMap is not defined. Please ensure it's declared globally or within scope.");
-                // Potentially define a fallback or halt execution if critical
-            }
 
             // Event listeners
-            protocolFilterSelect.addEventListener('change', applyFilters);
-            countryFilterSelect.addEventListener('change', applyFilters);
-            nationalFilterCheckbox.addEventListener('change', applyFilters);
+            sourceFilterSelect.addEventListener('change', applyFilters); // New event listener for source filter
             updateButton.addEventListener('click', () => fetchAllConfigs(true));
             copyAllButton.addEventListener('click', () => {
                 if (filteredConfigurations.length > 0) {
