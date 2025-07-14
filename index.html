@@ -575,31 +575,30 @@
 
         // List of V2Ray/Xray URLs to fetch with descriptive names
         const directUrls = [
-            { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet Config" },
-            { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo Xray" },
-            { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m V2Ray" },
-            { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland Aggregator" },
-            { url: "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/refs/heads/main/configs/proxy_configs.txt", name: "4n0nymou3 Fetcher" },
-            { url: "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp", name: "ircfspace WARP" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP OpenProxy" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP Trojan" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP OpenProxy RAW" }
+            { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet" },
+            { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo" },
+            { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m" },
+            { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland" },
+            { url: "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp", name: "ircfspace" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP" }
         ];
 
         const base64Urls = [
-            { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe VPN-Fail" },
-            { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland Shadowsocks" },
-            { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet Clash" },
-            { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet FreeConfig App" },
-            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "davudsedft purvpn PC" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt", name: "HamedP OpenProxy Base64" },
-            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft purvpn Purkow" }
+            { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe" },
+            { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland" },
+            { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet" },
+            { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet" },
+            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "davudsedft" },
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt", name: "HamedP" },
+            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft" }
         ];
 
         // Add MahsaFreeConfig MTN/MCI
         for (let i = 1; i <= 4; i++) {
-            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}` });
-            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}` });
+            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN` });
+            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI` });
         }
 
         // Combined list of all URLs to fetch
