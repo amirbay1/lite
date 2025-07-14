@@ -9,7 +9,7 @@
     <!-- LZ-String library for compression -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
     <!-- Inter font import -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -570,7 +570,7 @@
         let timerInterval;
 
         const CACHE_KEY = 'v2ray_configs_cache';
-        const CACHE_EXPIRATION_MS = 240 * 600 * 600 * 10000; // 24 hours in milliseconds
+        const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
         // Specific URL for Iran configs from SoliSpirit, to force its country to "Iran"
         const IRAN_CONFIG_URL = "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt";
@@ -1335,7 +1335,11 @@
 
                     const sourceConfigs = shuffleArray([...configsBySource[sourceName]]);
                     // Calculate how many to take from this source, trying to distribute evenly
-                    const numToTake = Math.min(Math.ceil(remainingToSelect / (sourceNames.length - configsToSelect.length)), sourceConfigs.length);
+                    // Ensure we don't try to take more than what's available in this source
+                    const numToTake = Math.min(
+                        Math.ceil(remainingToSelect / (sourceNames.length - configsToSelect.length)), // Distribute remaining over remaining sources
+                        sourceConfigs.length // Don't take more than available in this source
+                    );
 
                     let takenCount = 0;
                     for (let i = 0; i < sourceConfigs.length && takenCount < numToTake; i++) {
@@ -1350,11 +1354,13 @@
                 }
 
                 // If still less than targetCount, pick remaining from all unique configs
+                // This handles cases where some sources might have very few configs,
+                // and the initial even distribution couldn't reach the target.
                 if (configsToSelect.length < targetCount) {
-                    const remainingConfigs = shuffleArray(allConfigurations.filter(config => !selectedConfigSet.has(config.config)));
-                    for (let i = 0; i < remainingConfigs.length && configsToSelect.length < targetCount; i++) {
-                        configsToSelect.push(remainingConfigs[i]);
-                        selectedConfigSet.add(remainingConfigs[i].config);
+                    const remainingOverallConfigs = shuffleArray(allConfigurations.filter(config => !selectedConfigSet.has(config.config)));
+                    for (let i = 0; i < remainingOverallConfigs.length && configsToSelect.length < targetCount; i++) {
+                        configsToSelect.push(remainingOverallConfigs[i]);
+                        selectedConfigSet.add(remainingOverallConfigs[i].config);
                     }
                 }
 
