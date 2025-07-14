@@ -664,10 +664,6 @@
             base64Urls.push(`https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`);
         }
 
-      
-       
-        });
-
         // Combined list of all URLs to fetch
         const allFetchUrls = [];
         const processedUrls = new Set();
@@ -912,7 +908,7 @@
                 console.error('Error during config test:', error);
                 // Changed error message as per user request
                 resultDisplayElement.innerHTML = "قابلیت تست کانفیگ غیرفعال است.";
-                resultResultDisplayElement.className = 'test-result-display show error';
+                resultDisplayElement.className = 'test-result-display show error'; // Corrected typo here
             }
         }
 
