@@ -490,6 +490,7 @@
                 </select>
             </div>
             <button class="refresh-button" id="copyAllButton" style="background-color: #0088cc; margin-top: 0; display: none;"><i class="fas fa-copy"></i> کپی همه کانفیگ‌ها</button>
+            <button class="refresh-button" id="copyRandom20Button" style="background-color: #8A2BE2; margin-top: 0; display: none;"><i class="fas fa-random"></i> کپی 20 کانفیگ رندم</button>
         </div>
 
         <!-- Progress and Timer Section -->
@@ -548,6 +549,7 @@
         const sourceFilterSelect = document.getElementById('sourceFilter'); // New: Get source filter select
         const updateButton = document.getElementById('updateButton');
         const copyAllButton = document.getElementById('copyAllButton');
+        const copyRandom20Button = document.getElementById('copyRandom20Button'); // New: Get random 20 button
         const loadingSpinner = document.getElementById('loading');
         const progressBar = document.getElementById('progressBar');
         const currentSourceSpan = document.getElementById('currentSource');
@@ -568,7 +570,7 @@
         let timerInterval;
 
         const CACHE_KEY = 'v2ray_configs_cache';
-        const CACHE_EXPIRATION_MS = 240 * 600 * 600 * 10000; // 24 hours in milliseconds
+        const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
         // Specific URL for Iran configs from SoliSpirit, to force its country to "Iran"
         const IRAN_CONFIG_URL = "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt";
@@ -582,7 +584,8 @@
             { url: "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp", name: "ircfspace" },
             { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP" },
             { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP" }
+            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP" },
+            { url: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt", name: "iran" }
         ];
 
         const base64Urls = [
@@ -1024,6 +1027,8 @@
                             filterBar.style.display = 'flex';
                             copyAllButton.style.display = 'block';
                             copyAllButton.disabled = false;
+                            copyRandom20Button.style.display = 'block'; // Show new button
+                            copyRandom20Button.disabled = false; // Enable new button
                         }
                         return true;
                     } else {
@@ -1293,12 +1298,100 @@
         }
 
         /**
+         * Shuffles an array in place.
+         * @param {Array} array - The array to shuffle.
+         * @returns {Array} The shuffled array.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Copies 20 random configurations based on the current filter.
+         */
+        function copyRandom20Configs() {
+            const selectedSource = sourceFilterSelect.value;
+            const configsToSelect = [];
+            const selectedConfigSet = new Set();
+            const targetCount = 20;
+
+            if (selectedSource === 'all') {
+                const configsBySource = {};
+                allConfigurations.forEach(config => {
+                    if (!configsBySource[config.source]) {
+                        configsBySource[config.source] = [];
+                    }
+                    configsBySource[config.source].push(config);
+                });
+
+                const sourceNames = shuffleArray(Object.keys(configsBySource));
+                let remainingToSelect = targetCount;
+
+                for (const sourceName of sourceNames) {
+                    if (remainingToSelect <= 0) break;
+
+                    const sourceConfigs = shuffleArray([...configsBySource[sourceName]]);
+                    // Calculate how many to take from this source, trying to distribute evenly
+                    const numToTake = Math.min(Math.ceil(remainingToSelect / (sourceNames.length - configsToSelect.length)), sourceConfigs.length);
+
+                    let takenCount = 0;
+                    for (let i = 0; i < sourceConfigs.length && takenCount < numToTake; i++) {
+                        const config = sourceConfigs[i];
+                        if (!selectedConfigSet.has(config.config)) {
+                            configsToSelect.push(config);
+                            selectedConfigSet.add(config.config);
+                            takenCount++;
+                            remainingToSelect--;
+                        }
+                    }
+                }
+
+                // If still less than targetCount, pick remaining from all unique configs
+                if (configsToSelect.length < targetCount) {
+                    const remainingConfigs = shuffleArray(allConfigurations.filter(config => !selectedConfigSet.has(config.config)));
+                    for (let i = 0; i < remainingConfigs.length && configsToSelect.length < targetCount; i++) {
+                        configsToSelect.push(remainingConfigs[i]);
+                        selectedConfigSet.add(remainingConfigs[i].config);
+                    }
+                }
+
+            } else {
+                // Specific source selected, pick randomly from filteredConfigurations
+                if (filteredConfigurations.length === 0) {
+                    showGlobalMessage('هیچ کانفیگی در این مخزن برای کپی کردن وجود ندارد.', 'error');
+                    return;
+                }
+                const shuffledFilteredConfigs = shuffleArray([...filteredConfigurations]);
+                for (let i = 0; i < shuffledFilteredConfigs.length && configsToSelect.length < targetCount; i++) {
+                    const config = shuffledFilteredConfigs[i];
+                    if (!selectedConfigSet.has(config.config)) { // Ensure uniqueness even within the filtered list
+                        configsToSelect.push(config);
+                        selectedConfigSet.add(config.config);
+                    }
+                }
+            }
+
+            if (configsToSelect.length > 0) {
+                const allText = configsToSelect.map(item => item.config).join('\n');
+                copyToClipboard(allText);
+            } else {
+                showGlobalMessage('کانفیگی برای کپی کردن یافت نشد.', 'error');
+            }
+        }
+
+
+        /**
          * Main function to fetch all configurations, handle progress, and update UI.
          * @param {boolean} forceFetch - If true, bypasses cache and forces a new fetch.
          */
         async function fetchAllConfigs(forceFetch = false) {
             updateButton.disabled = true;
             copyAllButton.disabled = true; // Disable copy all button during fetch
+            copyRandom20Button.disabled = true; // Disable random 20 button during fetch
             filterBar.style.display = 'none'; // Ensure filters are hidden at start of fetch
 
             loadingSpinner.style.display = 'block';
@@ -1348,12 +1441,16 @@
                 // Only show filters and copy all button if there are configs
                 if (allConfigurations.length > 0) {
                     copyAllButton.disabled = false; // Re-enable copy all button
+                    copyRandom20Button.disabled = false; // Re-enable random 20 button
                     filterBar.style.display = 'flex'; // Show filters after fetch
                     copyAllButton.style.display = 'block'; // Show copy all button after fetch
+                    copyRandom20Button.style.display = 'block'; // Show random 20 button after fetch
                 } else {
                     copyAllButton.disabled = true; // Keep disabled if no configs
+                    copyRandom20Button.disabled = true; // Keep disabled if no configs
                     filterBar.style.display = 'none'; // Keep hidden if no configs
                     copyAllButton.style.display = 'none'; // Keep hidden if no configs
+                    copyRandom20Button.style.display = 'none'; // Keep hidden if no configs
                 }
             }, 2000);
         }
@@ -1374,6 +1471,7 @@
                     showGlobalMessage('کانفیگی برای کپی کردن وجود ندارد.', 'error');
                 }
             });
+            copyRandom20Button.addEventListener('click', copyRandom20Configs); // New event listener for random 20 button
             window.addEventListener('scroll', handleScroll);
 
             // Initial load logic
