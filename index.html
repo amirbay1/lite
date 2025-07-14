@@ -570,7 +570,7 @@
         let timerInterval;
 
         const CACHE_KEY = 'v2ray_configs_cache';
-        const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        const CACHE_EXPIRATION_MS = 240 * 600 * 600 * 10000; // 24 hours in milliseconds
 
         // Specific URL for Iran configs from SoliSpirit, to force its country to "Iran"
         const IRAN_CONFIG_URL = "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt";
@@ -581,7 +581,6 @@
             { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo" },
             { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m" },
             { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland" },
-            { url: "https://raw.githubusercontent.com/ircfspace/warpsub/main/export/warp", name: "ircfspace" },
             { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP" },
             { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP" },
             { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP" },
