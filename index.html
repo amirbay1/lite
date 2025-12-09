@@ -2,65 +2,61 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هاب اتصال امن | V2Ray Aggregator</title>
-    <meta name="description" content="مجموعه کانفیگ‌های رایگان V2Ray و ابزارهای اتصال امن">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>هاب اتصال امن پرو | V2Hub Pro</title>
+    <meta name="description" content="ابزار حرفه‌ای دریافت و مدیریت کانفیگ‌های V2Ray">
+    <meta name="theme-color" content="#2563eb">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9373/9373307.png">
+
     <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
-    <!-- Vazirmatn Font (Beautiful Persian Font) -->
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-sec: #6b7280;
-            --border: #e5e7eb;
+            --primary-dark: #1e40af;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #111827;
-                --card-bg: #1f2937;
-                --text-main: #f9fafb;
-                --text-sec: #d1d5db;
-                --border: #374151;
+                --bg: #0f172a;
+                --surface: #1e293b;
+                --text: #f1f5f9;
+                --text-light: #94a3b8;
+                --border: #334155;
             }
         }
 
-        * { box-sizing: border-box; outline: none; }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s, color 0.3s;
+            padding-bottom: 80px;
         }
 
-        /* Layout */
         .container {
-            width: 100%;
             max-width: 1200px;
-            padding: 20px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         /* Header */
@@ -68,726 +64,672 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 20px 0;
+            position: relative;
         }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, var(--primary), #8b5cf6);
+        
+        .logo-area h1 {
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
+            font-size: 2rem;
+            font-weight: 900;
         }
 
-        /* Controls & Filters */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            background: var(--card-bg);
-            padding: 20px;
+        /* Advanced Filters */
+        .controls-wrapper {
+            background: var(--surface);
             border-radius: var(--radius);
+            padding: 20px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            margin-bottom: 20px;
         }
 
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            min-width: 200px;
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
         select, input {
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid var(--border);
-            background: var(--bg-color);
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
             font-family: inherit;
-            font-size: 14px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 10px 16px;
             border: none;
             border-radius: 10px;
-            cursor: pointer;
             font-weight: 600;
-            font-family: inherit;
-            transition: transform 0.2s, opacity 0.2s;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             color: white;
-            font-size: 14px;
+            transition: 0.2s;
+            flex: 1;
+            min-width: 120px;
         }
 
+        .btn-primary { background: var(--primary); }
+        .btn-sub { background: linear-gradient(45deg, #ec4899, #8b5cf6); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        
         button:active { transform: scale(0.96); }
-        
-        .btn-primary { background-color: var(--primary); }
-        .btn-primary:hover { background-color: var(--primary-hover); }
-        
-        .btn-purple { background-color: #8b5cf6; }
-        .btn-purple:hover { background-color: #7c3aed; }
-        
-        .btn-green { background-color: var(--success); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Stats Bar */
-        .stats-bar {
+        /* Stats & Install PWA */
+        .status-bar {
             display: flex;
             justify-content: space-between;
-            color: var(--text-sec);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            padding: 0 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
         }
 
-        /* Grid Layout */
+        #installPwa { display: none; background: var(--text); color: var(--bg); font-size: 0.8rem; padding: 6px 12px; }
+
+        /* Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            width: 100%;
         }
 
-        /* Proxy Card */
+        /* Modern Card */
         .card {
-            background: var(--card-bg);
+            background: var(--surface);
             border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
+            padding: 16px;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            transition: transform 0.2s;
         }
 
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
+        .card-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+        .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-weight: 700;
             text-transform: uppercase;
         }
-
-        .badge-protocol { background: #e0f2fe; color: #0369a1; }
-        .badge-source { background: #f3f4f6; color: #4b5563; font-weight: 500; display: flex; align-items: center; gap: 4px; margin-top: 8px; width: fit-content; font-size: 0.7rem; }
-        .badge-national { background: #fef3c7; color: #b45309; }
+        .tag-proto { background: #e0f2fe; color: #0369a1; }
+        .tag-net { background: #f3e8ff; color: #7e22ce; }
+        .tag-reality { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .tag-loc { background: #fff7ed; color: #c2410c; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .card-title {
-            margin: 0;
             font-size: 1rem;
             font-weight: 700;
-            color: var(--primary);
+            margin-bottom: 5px;
+            direction: ltr;
+            text-align: right;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            direction: ltr; /* Force LTR for domains/IPs */
-            text-align: right;
         }
 
-        .card-meta {
-            font-size: 0.85rem;
-            color: var(--text-sec);
+        .card-info {
+            font-size: 0.8rem;
+            color: var(--text-light);
             margin-bottom: 15px;
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
         }
 
         .card-actions {
             margin-top: auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .card-btn {
-            background: var(--bg-color);
-            color: var(--text-main);
+        .btn-card {
             padding: 8px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
             border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
         }
-        .card-btn:hover { background: #e5e7eb; }
-        
-        .btn-full { grid-column: 1 / -1; }
-
-        /* Loading & Progress */
-        .loading-container {
-            width: 100%;
-            text-align: center;
-            padding: 40px;
-            display: none;
-        }
-        .loading-container.active { display: block; }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        .progress-bar-wrap {
-            width: 100%;
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
+        .btn-connect {
+            grid-column: span 2;
             background: var(--primary);
-            width: 0%;
-            transition: width 0.3s;
+            color: white;
+            border: none;
         }
 
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
+        /* Loading */
+        .loader-wrapper { text-align: center; padding: 40px; display: none; }
+        .loader-wrapper.active { display: block; }
+        .spinner {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 4px solid var(--border); border-top-color: var(--primary);
+            animation: spin 1s linear infinite; margin: 0 auto 10px;
+        }
+
+        /* Modals & Toasts */
+        .modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
             z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            pointer-events: none;
+        }
+        .modal.open { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--surface);
+            padding: 25px; border-radius: 20px;
+            width: 90%; max-width: 350px;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333; color: white;
+            padding: 10px 20px; border-radius: 50px;
+            transition: 0.3s; z-index: 2000;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s;
-        }
-        .modal-overlay.open { opacity: 1; visibility: visible; }
-        
-        .modal-content {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: var(--radius);
-            max-width: 90%;
-            width: 350px;
-            text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            color: var(--text-sec);
-            text-align: center;
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
-            width: 100%;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-shield-halved"></i> هاب اتصال امن</h1>
-            <p style="color: var(--text-sec);">مجموعه‌ای از بهترین کانفیگ‌های V2Ray برای دسترسی آزاد</p>
-        </header>
+<div class="container">
+    <header>
+        <div class="logo-area">
+            <h1><i class="fas fa-bolt"></i> V2Hub Pro</h1>
+            <p style="color: var(--text-light); margin-top: 5px;">ابزار تخصصی اتصال آزاد</p>
+        </div>
+        <button id="installPwa" onclick="installApp()"><i class="fas fa-download"></i> نصب اپلیکیشن</button>
+    </header>
 
-        <!-- Controls -->
-        <div class="controls" id="filterSection" style="display: none;">
-            <div class="input-group">
-                <i class="fas fa-filter" style="color: var(--text-sec);"></i>
-                <select id="sourceFilter">
-                    <option value="all">همه مخازن</option>
-                </select>
-            </div>
+    <div class="controls-wrapper">
+        <div class="filter-grid">
+            <select id="protocolFilter">
+                <option value="all">همه پروتکل‌ها</option>
+                <option value="vless">VLess (پیشنهادی)</option>
+                <option value="vmess">VMess</option>
+                <option value="trojan">Trojan</option>
+                <option value="reality">فقط Reality</option>
+            </select>
             
-            <div class="input-group">
-                <i class="fas fa-search" style="color: var(--text-sec);"></i>
-                <input type="text" id="searchInput" placeholder="جستجو (نام، پروتکل...)">
-            </div>
+            <select id="networkFilter">
+                <option value="all">همه شبکه‌ها</option>
+                <option value="ws">WebSocket (WS)</option>
+                <option value="grpc">gRPC</option>
+                <option value="tcp">TCP</option>
+            </select>
 
-            <button id="updateButton" class="btn-primary">
-                <i class="fas fa-sync-alt"></i> بروزرسانی
-            </button>
-            <button id="copyAllButton" class="btn-purple">
-                <i class="fas fa-copy"></i> کپی همه
-            </button>
-            <button id="copyRandomButton" class="btn-green">
-                <i class="fas fa-random"></i> 20 تایی رندوم
-            </button>
+            <select id="sourceFilter">
+                <option value="all">همه منابع</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="searchInput" placeholder="جستجو (نام، IP، کشور...)">
         </div>
 
-        <div class="stats-bar">
-            <span id="proxyCount">0 کانفیگ</span>
-            <span id="lastUpdatedDate">بروزرسانی: --</span>
-        </div>
-
-        <!-- Loading -->
-        <div id="loadingSection" class="loading-container">
-            <div class="spinner"></div>
-            <div id="loadingText" style="margin-bottom: 5px;">در حال دریافت اطلاعات...</div>
-            <div class="progress-bar-wrap">
-                <div id="progressBar" class="progress-bar"></div>
-            </div>
-            <small id="elapsedTime" style="display: block; margin-top: 5px; color: var(--text-sec);">00:00</small>
-        </div>
-
-        <!-- Content -->
-        <div id="proxiesGrid" class="grid"></div>
-        <div id="loadMoreTrigger" style="height: 50px; margin-top: 20px;"></div>
-
-        <footer>
-            طراحی شده با ❤️ برای آزادی اینترنت
-        </footer>
-    </div>
-
-    <!-- Modals -->
-    <div id="qrModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 style="margin-top: 0; color: var(--primary);">QR Code</h3>
-            <canvas id="qrCanvas"></canvas>
-            <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeModal()">بستن</button>
+        <div class="action-bar">
+            <button class="btn-primary" id="updateBtn"><i class="fas fa-sync-alt"></i> بروزرسانی</button>
+            <button class="btn-sub" id="subLinkBtn"><i class="fas fa-link"></i> ساخت لینک اشتراک</button>
+            <button class="btn-outline" id="copyAllBtn"><i class="fas fa-copy"></i> کپی همه</button>
         </div>
     </div>
 
-    <div id="toast" class="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">پیام سیستم</span>
+    <div class="status-bar">
+        <span id="statsText">0 کانفیگ</span>
+        <span id="updateTime">--:--</span>
     </div>
 
-    <script>
-        // --- Configuration ---
-        const CONFIG = {
-            cacheKey: 'v2ray_hub_cache',
-            cacheExpiration: 12 * 60 * 60 * 1000, // 12 hours
-            proxiesPerLoad: 24,
-            iranConfigUrl: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt"
-        };
+    <div class="loader-wrapper" id="loader">
+        <div class="spinner"></div>
+        <div id="loadingText">در حال دریافت منابع...</div>
+        <div style="width: 100%; height: 4px; background: var(--border); margin-top: 10px; border-radius: 2px; overflow: hidden;">
+            <div id="progressBar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>
+        </div>
+    </div>
 
-        const SOURCES = {
-            direct: [
-                { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet" },
-                { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo" },
-                { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m" },
-                { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland" },
-                { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP (V2Ray)" },
-                { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP (Trojan)" },
-                { url: CONFIG.iranConfigUrl, name: "Iran National" }
-            ],
-            base64: [
-                { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe" },
-                { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland SS" },
-                { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet" },
-                { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet App" },
-                { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "PurVPN PC" },
-                { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "PurVPN" }
-            ]
-        };
+    <div id="grid" class="grid"></div>
+    <div id="loadMore" style="text-align:center; padding: 20px; display:none;">
+        <button class="btn-outline" onclick="loadMore()">نمایش بیشتر</button>
+    </div>
+</div>
 
-        // Add MahsaFreeConfig MTN/MCI
-        for (let i = 1; i <= 3; i++) {
-            SOURCES.base64.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}` });
-            SOURCES.base64.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}` });
-        }
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle" style="margin-top: 0;">QR Code</h3>
+        <div id="modalBody"></div>
+        <button onclick="closeModal()" class="btn-outline" style="width: 100%; margin-top: 15px;">بستن</button>
+    </div>
+</div>
 
-        // --- State Management ---
-        let state = {
-            allConfigs: [],
-            filteredConfigs: [],
-            currentIndex: 0,
-            isLoading: false
-        };
+<div class="toast" id="toast">پیام سیستم</div>
 
-        // --- DOM Elements ---
-        const els = {
-            grid: document.getElementById('proxiesGrid'),
-            filterSection: document.getElementById('filterSection'),
-            loading: document.getElementById('loadingSection'),
-            progressBar: document.getElementById('progressBar'),
-            loadingText: document.getElementById('loadingText'),
-            elapsedTime: document.getElementById('elapsedTime'),
-            sourceSelect: document.getElementById('sourceFilter'),
-            searchInput: document.getElementById('searchInput'),
-            count: document.getElementById('proxyCount'),
-            date: document.getElementById('lastUpdatedDate'),
-            toast: document.getElementById('toast'),
-            qrModal: document.getElementById('qrModal'),
-            loadMore: document.getElementById('loadMoreTrigger')
-        };
+<script>
+    // --- پیکربندی منابع (دقیقاً طبق فایل اصلی شما) ---
+    const SOURCES = [
+        // لینک‌های مستقیم (Direct)
+        { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet", type: "text" },
+        { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo", type: "text" },
+        { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m", type: "text" },
+        { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland", type: "text" },
+        { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP V2Ray", type: "text" },
+        { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP Trojan", type: "text" },
+        { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP Raw", type: "text" },
+        { url: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt", name: "Iran National", type: "text" },
 
-        // --- Core Functions ---
+        // لینک‌های Base64
+        { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe", type: "base64" },
+        { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland SS", type: "base64" },
+        { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet", type: "base64" },
+        { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet App", type: "base64" },
+        { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "davudsedft PC", type: "base64" },
+        { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt", name: "HamedP Base64", type: "base64" },
+        { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft Purkow", type: "base64" }
+    ];
 
-        async function init() {
-            // Check cache
-            const cached = loadFromCache();
-            if (cached) {
-                state.allConfigs = cached;
-                finalizeDataLoad();
-            } else {
-                await fetchAllData();
-            }
+    // اضافه کردن لینک‌های MahsaNet MTN/MCI
+    for (let i = 1; i <= 4; i++) {
+        SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}`, type: "base64" });
+        SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}`, type: "base64" });
+    }
 
-            setupEventListeners();
-        }
+    const CONFIG = {
+        key: 'v2hub_full_db_v1',
+        perPage: 40
+    };
 
-        function convertGithubUrl(url) {
-            return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
-        }
+    let state = {
+        all: [],
+        filtered: [],
+        page: 1,
+        installPrompt: null
+    };
 
-        async function fetchAllData() {
-            els.loading.classList.add('active');
-            els.filterSection.style.display = 'none';
-            els.grid.innerHTML = '';
-            
-            const allUrls = [
-                ...SOURCES.direct.map(s => ({ ...s, decode: false })),
-                ...SOURCES.base64.map(s => ({ ...s, decode: true }))
-            ];
-            
-            const uniqueConfigs = new Map();
-            let completed = 0;
-            const startTime = Date.now();
-            
-            // Timer
-            const timer = setInterval(() => {
-                const seconds = Math.floor((Date.now() - startTime) / 1000);
-                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
-                const secs = String(seconds % 60).padStart(2, '0');
-                els.elapsedTime.textContent = `${mins}:${secs}`;
-            }, 1000);
+    // --- توابع اصلی ---
 
-            // Fetch in parallel but with limits isn't needed for this scale, mostly
-            const promises = allUrls.map(async (source) => {
-                try {
-                    const cleanUrl = convertGithubUrl(source.url);
-                    const res = await fetch(cleanUrl);
-                    if (!res.ok) throw new Error(res.status);
-                    let text = await res.text();
-                    
-                    if (source.decode) {
-                        try { text = atob(text.trim()); } catch(e) {}
+    async function fetchAll() {
+        ui.loading(true);
+        state.all = [];
+        const uniqueSet = new Set();
+        let fetched = 0;
+
+        for (const source of SOURCES) {
+            try {
+                // تبدیل لینک گیت‌هاب به Raw
+                let finalUrl = source.url;
+                if (finalUrl.includes("github.com") && finalUrl.includes("/blob/")) {
+                    finalUrl = finalUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+                }
+
+                const res = await fetch(finalUrl);
+                if (!res.ok) throw new Error('Err');
+                let text = await res.text();
+
+                if (source.type === 'base64') {
+                    try { 
+                        // دیکود کردن کل فایل (برای لینک‌های سابسکرپشن)
+                        const decodedFull = atob(text.trim());
+                        text = decodedFull;
+                    } catch(e) {
+                         // اگر دیکود کامل نشد، شاید خط به خط باشه
+                    }
+                }
+
+                const lines = text.split(/\r?\n/);
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+
+                    // تلاش برای دیکود کردن خطوطی که ممکنه هنوز Base64 باشن
+                    if (!line.includes('://')) {
+                         try { line = atob(line); } catch(e) {}
                     }
 
-                    const lines = text.split(/\r?\n/);
-                    lines.forEach(line => {
-                        line = line.trim();
-                        if (!line) return;
+                    if (line.match(/^(vmess|vless|trojan|ss|ssr|warp):\/\//i)) {
+                        // پارس کردن برای استخراج اطلاعات
+                        const details = parseDetails(line);
+                        
+                        // کلید برای حذف تکراری (IP:Port)
+                        const duplicateKey = `${details.ip}:${details.port}`;
 
-                        // Try deeper decoding if needed
-                        if (!line.includes('://')) {
-                            try { line = atob(line); } catch(e) {}
+                        if (!uniqueSet.has(duplicateKey)) {
+                            uniqueSet.add(duplicateKey);
+                            state.all.push({
+                                config: line,
+                                source: source.name,
+                                ...details
+                            });
                         }
-
-                        // Basic Validation
-                        if (line.match(/^(vmess|vless|trojan|ss|ssr|warp):\/\//i)) {
-                            // Check for "Iran" source
-                            const isNational = source.url === CONFIG.iranConfigUrl;
-                            // Use config as key to remove duplicates
-                            if (!uniqueConfigs.has(line)) {
-                                uniqueConfigs.set(line, {
-                                    config: line,
-                                    source: source.name,
-                                    protocol: line.split(':')[0],
-                                    isNational: isNational
-                                });
-                            }
-                        }
-                    });
-
-                } catch (e) {
-                    console.warn(`Failed ${source.name}:`, e);
-                } finally {
-                    completed++;
-                    const pct = Math.round((completed / allUrls.length) * 100);
-                    els.progressBar.style.width = `${pct}%`;
-                    els.loadingText.textContent = `در حال دریافت... (${completed}/${allUrls.length})`;
+                    }
                 }
-            });
 
-            await Promise.all(promises);
-            clearInterval(timer);
-            
-            state.allConfigs = Array.from(uniqueConfigs.values());
-            saveToCache(state.allConfigs);
-            finalizeDataLoad();
-        }
-
-        function finalizeDataLoad() {
-            els.loading.classList.remove('active');
-            els.filterSection.style.display = 'flex';
-            
-            updateFiltersUI();
-            updateLastUpdateText();
-            applyFilters();
-        }
-
-        // --- Parsing & Display Logic ---
-
-        function parseConfig(configStr) {
-            let title = "کانفیگ بی نام";
-            let type = configStr.split(':')[0].toUpperCase();
-            
-            try {
-                if (type === 'VMESS' || type === 'VLESS') {
-                    const b64 = configStr.split('://')[1];
-                    // Try LZString then normal Base64
-                    let jsonStr;
-                    try { jsonStr = atob(b64); } catch { return { title, type }; }
-                    
-                    // Decode URI components for Persian names
-                    try { jsonStr = decodeURIComponent(escape(jsonStr)); } catch {}
-
-                    const obj = JSON.parse(jsonStr);
-                    title = obj.ps || obj.add || title;
-                } else {
-                    // Simple parse for Trojan/SS
-                    const url = new URL(configStr);
-                    title = url.hash ? decodeURIComponent(url.hash.substring(1)) : url.hostname;
-                }
             } catch (e) {
-                // Fallback: Just show first few chars
-                title = configStr.substring(0, 20) + '...';
+                console.log(`Failed: ${source.name}`);
             }
-            return { title, type };
+            fetched++;
+            document.getElementById('progressBar').style.width = `${(fetched / SOURCES.length) * 100}%`;
+            document.getElementById('loadingText').innerText = `دریافت ${fetched} از ${SOURCES.length} منبع...`;
         }
 
-        function createCard(item) {
-            const { title, type } = parseConfig(item.config);
-            
+        saveData();
+        updateUI();
+        ui.loading(false);
+        ui.toast(`موفق: ${state.all.length} کانفیگ سالم دریافت شد`, 'success');
+    }
+
+    // --- پارسر هوشمند ---
+    function parseDetails(config) {
+        let ip = 'unknown', port = '0', type = 'unknown', net = 'tcp', security = 'none', remark = '';
+        
+        try {
+            const proto = config.split('://')[0].toLowerCase();
+            type = proto;
+
+            if (proto === 'vmess' || proto === 'vless') {
+                if (proto === 'vmess' && !config.includes('@')) {
+                    // JSON format
+                    try {
+                        const b64 = config.split('://')[1];
+                        const json = JSON.parse(decodeURIComponent(escape(atob(b64))));
+                        ip = json.add; port = json.port; net = json.net; remark = json.ps;
+                        security = json.tls || 'none';
+                    } catch(e) {}
+                } else {
+                    // URL format
+                    const url = new URL(config);
+                    ip = url.hostname;
+                    port = url.port;
+                    remark = decodeURIComponent(url.hash.slice(1));
+                    const params = new URLSearchParams(url.search);
+                    net = params.get('type') || params.get('net') || 'tcp';
+                    security = params.get('security') || 'none';
+                }
+            } else if (proto === 'trojan' || proto === 'ss' || proto === 'ssr') {
+                const url = new URL(config);
+                ip = url.hostname;
+                port = url.port;
+                remark = decodeURIComponent(url.hash.slice(1));
+            }
+        } catch(e) {
+            remark = config.substring(0, 15) + '...';
+        }
+
+        if (security === 'reality' || config.includes('security=reality')) {
+            security = 'reality';
+        }
+
+        return { ip, port, type, net, security, remark: remark || 'No Name' };
+    }
+
+    // --- مدیریت نمایش و فیلترها ---
+
+    function filterData() {
+        const pFilter = document.getElementById('protocolFilter').value;
+        const nFilter = document.getElementById('networkFilter').value;
+        const sFilter = document.getElementById('sourceFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+
+        state.filtered = state.all.filter(item => {
+            let pMatch = true;
+            if (pFilter === 'reality') pMatch = item.security === 'reality';
+            else if (pFilter !== 'all') pMatch = item.type === pFilter;
+
+            let nMatch = (nFilter === 'all') || (item.net === nFilter);
+            let sMatch = (sFilter === 'all') || (item.source === sFilter);
+            let searchMatch = !search || 
+                item.remark.toLowerCase().includes(search) || 
+                item.ip.includes(search) || 
+                item.source.toLowerCase().includes(search);
+
+            return pMatch && nMatch && sMatch && searchMatch;
+        });
+
+        state.page = 1;
+        document.getElementById('grid').innerHTML = '';
+        renderGrid();
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('grid');
+        const start = (state.page - 1) * CONFIG.perPage;
+        const end = start + CONFIG.perPage;
+        const itemsToShow = state.filtered.slice(start, end);
+
+        itemsToShow.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
             
-            const isNationalHtml = item.isNational ? 
-                `<span class="badge badge-national"><i class="fas fa-flag"></i> ایران</span>` : '';
+            let tagsHtml = `<span class="tag tag-proto">${item.type.toUpperCase()}</span>`;
+            if (item.security === 'reality') tagsHtml += `<span class="tag tag-reality">REALITY</span>`;
+            if (item.net && item.net !== 'tcp') tagsHtml += `<span class="tag tag-net">${item.net.toUpperCase()}</span>`;
+            tagsHtml += `<span class="tag tag-loc">${item.source}</span>`;
 
             card.innerHTML = `
-                <div class="card-header">
-                    <span class="badge badge-protocol">${type}</span>
-                    ${isNationalHtml}
+                <div class="card-top">
+                    <div class="tags">${tagsHtml}</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6;">${item.port}</div>
                 </div>
-                <h3 class="card-title">${title}</h3>
-                <div class="badge-source"><i class="fas fa-server"></i> ${item.source}</div>
-                <div class="card-meta" style="margin-top:10px;">
-                    ${item.config.substring(0, 40)}...
+                <div class="card-title">${item.remark}</div>
+                <div class="card-info">
+                    <span>${item.ip}</span>
+                    <span id="ping-${item.ip.replace(/[.:]/g,'-')}" style="cursor:pointer;" onclick="checkIp('${item.ip}')">بررسی IP <i class="fas fa-search-location"></i></span>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn" onclick="copyToClipboard('${item.config}')">
+                    <button class="btn-card btn-connect" onclick="connect('${item.config}')">
+                        <i class="fas fa-bolt"></i> اتصال مستقیم
+                    </button>
+                    <button class="btn-card" onclick="copy('${item.config}')">
                         <i class="fas fa-copy"></i> کپی
                     </button>
-                    <button class="card-btn" onclick="showQR('${item.config}')">
+                    <button class="btn-card" onclick="showQr('${item.config}')">
                         <i class="fas fa-qrcode"></i> QR
-                    </button>
-                    <button class="card-btn btn-full" onclick="deepLink('${item.config}')" style="background:var(--primary); color:white; border:none;">
-                        <i class="fas fa-bolt"></i> اتصال مستقیم
                     </button>
                 </div>
             `;
-            return card;
+            grid.appendChild(card);
+        });
+
+        const loadMoreBtn = document.getElementById('loadMore');
+        if (end < state.filtered.length) {
+            loadMoreBtn.style.display = 'block';
+        } else {
+            loadMoreBtn.style.display = 'none';
         }
 
-        // --- Infinite Scroll & Rendering ---
+        document.getElementById('statsText').innerText = `${state.filtered.length} کانفیگ (کل: ${state.all.length})`;
+    }
 
-        function applyFilters() {
-            const source = els.sourceSelect.value;
-            const search = els.searchInput.value.toLowerCase();
+    function loadMore() {
+        state.page++;
+        renderGrid();
+    }
 
-            state.filteredConfigs = state.allConfigs.filter(item => {
-                const matchSource = source === 'all' || item.source === source;
-                const matchSearch = !search || item.config.toLowerCase().includes(search) || 
-                                    (item.source && item.source.toLowerCase().includes(search));
-                return matchSource && matchSearch;
-            });
+    // --- ابزارهای کاربردی ---
 
-            els.count.textContent = `${state.filteredConfigs.length} کانفیگ موجود`;
-            els.grid.innerHTML = '';
-            state.currentIndex = 0;
-            loadMore();
+    function generateSubLink() {
+        if (state.filtered.length === 0) return ui.toast('لیست خالی است', 'error');
+        
+        const content = state.filtered.map(i => i.config).join('\n');
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const modalBody = document.getElementById('modalBody');
+        document.getElementById('modalTitle').innerText = 'لینک اشتراک فایل';
+        modalBody.innerHTML = `
+            <p style="font-size:0.9rem; color:#666;">دانلود فایل اشتراک برای استفاده در v2rayNG:</p>
+            <a href="${url}" download="v2hub_sub.txt" class="btn-primary" style="text-decoration:none; display:flex; margin-bottom:10px;">
+                <i class="fas fa-download"></i> دانلود فایل
+            </a>
+            <button class="btn-outline" style="width:100%" onclick="copy('${window.btoa(content)}')">
+                 کپی کد Base64 (برای ایمپورت)
+            </button>
+        `;
+        document.getElementById('modal').classList.add('open');
+    }
+
+    async function checkIp(ip) {
+        const id = `ping-${ip.replace(/[.:]/g,'-')}`;
+        const el = document.getElementById(id);
+        if(!el) return;
+        
+        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+            const res = await fetch(`http://ip-api.com/json/${ip}?fields=country,isp`);
+            const data = await res.json();
+            el.innerHTML = `${data.country} | ${data.isp.split(' ')[0]}`;
+            el.style.color = 'var(--success)';
+        } catch(e) {
+            el.innerHTML = 'خطا';
         }
+    }
 
-        function loadMore() {
-            if (state.isLoading) return;
-            state.isLoading = true;
+    // --- PWA Logic ---
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        state.installPrompt = e;
+        document.getElementById('installPwa').style.display = 'block';
+    });
 
-            const next = state.filteredConfigs.slice(state.currentIndex, state.currentIndex + CONFIG.proxiesPerLoad);
-            if (next.length === 0) {
-                state.isLoading = false;
-                return;
+    async function installApp() {
+        if (state.installPrompt) {
+            state.installPrompt.prompt();
+            const { outcome } = await state.installPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('installPwa').style.display = 'none';
             }
-
-            const fragment = document.createDocumentFragment();
-            next.forEach(item => fragment.appendChild(createCard(item)));
-            els.grid.appendChild(fragment);
-
-            state.currentIndex += CONFIG.proxiesPerLoad;
-            state.isLoading = false;
         }
+    }
 
-        // --- Helpers ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('کپی شد!', 'success');
-            }).catch(() => {
-                // Fallback
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast('کپی شد!', 'success');
-            });
+    // --- UI Helpers ---
+    const ui = {
+        loading: (show) => document.getElementById('loader').classList.toggle('active', show),
+        toast: (msg, type) => {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.background = type === 'error' ? 'var(--danger)' : '#333';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
+    };
 
-        function deepLink(config) {
-            // Attempt to open in v2rayNG or similar apps
-            window.location.href = config;
-            // Also copy just in case
-            copyToClipboard(config);
-            showToast('کپی شد و در حال باز شدن...', 'info');
-        }
+    function connect(conf) {
+        window.location.href = conf;
+        copy(conf);
+        ui.toast('لینک کپی شد و برنامه باز شد', 'success');
+    }
 
-        function showQR(text) {
-            const canvas = document.getElementById('qrCanvas');
-            QRCode.toCanvas(canvas, text, { width: 250, margin: 2 }, function (error) {
-                if (error) console.error(error);
-                els.qrModal.classList.add('open');
-            });
-        }
+    function copy(text) {
+        navigator.clipboard.writeText(text);
+        ui.toast('کپی شد!', 'success');
+    }
 
-        function closeModal() {
-            els.qrModal.classList.remove('open');
-        }
+    function showQr(text) {
+        document.getElementById('modalTitle').innerText = 'QR Code';
+        const container = document.getElementById('modalBody');
+        container.innerHTML = '<canvas id="qrCanvas"></canvas>';
+        QRCode.toCanvas(document.getElementById('qrCanvas'), text, { width: 250 });
+        document.getElementById('modal').classList.add('open');
+    }
 
-        function showToast(msg, type = 'info') {
-            document.getElementById('toastMessage').textContent = msg;
-            els.toast.classList.add('show');
-            setTimeout(() => els.toast.classList.remove('show'), 3000);
-        }
+    function closeModal() {
+        document.getElementById('modal').classList.remove('open');
+    }
 
-        function saveToCache(data) {
-            try {
-                const payload = JSON.stringify({ data, time: Date.now() });
-                const compressed = LZString.compressToUTF16(payload);
-                localStorage.setItem(CONFIG.cacheKey, compressed);
-            } catch (e) { console.warn('Cache failed', e); }
-        }
+    function updateUI() {
+        const sources = [...new Set(state.all.map(i => i.source))].sort();
+        const sSelect = document.getElementById('sourceFilter');
+        sSelect.innerHTML = '<option value="all">همه منابع</option>';
+        sources.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s; opt.innerText = s;
+            sSelect.appendChild(opt);
+        });
 
-        function loadFromCache() {
-            try {
-                const compressed = localStorage.getItem(CONFIG.cacheKey);
-                if (!compressed) return null;
-                const json = LZString.decompressFromUTF16(compressed);
-                const { data, time } = JSON.parse(json);
-                if (Date.now() - time > CONFIG.cacheExpiration) return null;
-                return data;
-            } catch (e) { return null; }
-        }
+        filterData();
+        
+        const d = new Date();
+        document.getElementById('updateTime').innerText = `آخرین: ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
 
-        function updateLastUpdateText() {
-            try {
-                const compressed = localStorage.getItem(CONFIG.cacheKey);
-                if(compressed) {
-                    const { time } = JSON.parse(LZString.decompressFromUTF16(compressed));
-                    const d = new Date(time);
-                    els.date.textContent = `بروزرسانی: ${d.getHours()}:${String(d.getMinutes()).padStart(2,0)}`;
+    function saveData() {
+        const data = JSON.stringify({ items: state.all, time: Date.now() });
+        try { localStorage.setItem(CONFIG.key, LZString.compressToUTF16(data)); } catch(e){}
+    }
+
+    function loadData() {
+        try {
+            const raw = localStorage.getItem(CONFIG.key);
+            if (raw) {
+                const data = JSON.parse(LZString.decompressFromUTF16(raw));
+                // Cache valid for 4 hours
+                if (Date.now() - data.time < 14400000) {
+                    state.all = data.items;
+                    updateUI();
+                    return true;
                 }
-            } catch {}
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('updateBtn').onclick = fetchAll;
+        document.getElementById('subLinkBtn').onclick = generateSubLink;
+        document.getElementById('copyAllBtn').onclick = () => copy(state.filtered.map(i => i.config).join('\n'));
+        
+        ['protocolFilter', 'networkFilter', 'sourceFilter', 'searchInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', filterData);
+        });
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+
+        if (!loadData()) {
+            fetchAll();
         }
+    });
 
-        function updateFiltersUI() {
-            const sources = [...new Set(state.allConfigs.map(c => c.source))].sort();
-            els.sourceSelect.innerHTML = '<option value="all">همه مخازن</option>';
-            sources.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                els.sourceSelect.appendChild(opt);
-            });
-        }
-
-        // --- Event Listeners ---
-
-        function setupEventListeners() {
-            // Scroll Observer for Infinite Scroll
-            const observer = new IntersectionObserver((entries) => {
-                if(entries[0].isIntersecting) loadMore();
-            }, { threshold: 0.1 });
-            observer.observe(els.loadMore);
-
-            // Controls
-            document.getElementById('updateButton').onclick = () => fetchAllData();
-            
-            document.getElementById('copyAllButton').onclick = () => {
-                if (!state.filteredConfigs.length) return showToast('لیست خالی است', 'error');
-                const text = state.filteredConfigs.map(c => c.config).join('\n');
-                copyToClipboard(text);
-                showToast(`کپی تمام ${state.filteredConfigs.length} کانفیگ`, 'success');
-            };
-
-            document.getElementById('copyRandomButton').onclick = () => {
-                if (!state.filteredConfigs.length) return;
-                const shuffled = [...state.filteredConfigs].sort(() => 0.5 - Math.random());
-                const selected = shuffled.slice(0, 20).map(c => c.config).join('\n');
-                copyToClipboard(selected);
-                showToast('20 کانفیگ رندوم کپی شد', 'success');
-            };
-
-            els.sourceSelect.onchange = applyFilters;
-            els.searchInput.oninput = applyFilters; // Real-time search
-            
-            els.qrModal.onclick = (e) => {
-                if(e.target === els.qrModal) closeModal();
-            };
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', init);
-
-    </script>
+</script>
 </body>
 </html>
