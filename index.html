@@ -125,13 +125,13 @@
             color: white;
             transition: 0.2s;
             flex: 1;
-            min-width: 120px;
+            min-width: 140px;
             font-size: 0.9rem;
         }
 
         .btn-primary { background: var(--primary); }
         .btn-sub { background: linear-gradient(45deg, #ec4899, #8b5cf6); }
-        .btn-random { background: var(--success); } /* استایل دکمه رندوم */
+        .btn-random { background: var(--success); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         
         button:active { transform: scale(0.96); }
@@ -308,9 +308,8 @@
 
         <div class="action-bar">
             <button class="btn-primary" id="updateBtn"><i class="fas fa-sync-alt"></i> بروزرسانی</button>
-            <button class="btn-sub" id="subLinkBtn"><i class="fas fa-link"></i> ساخت لینک اشتراک</button>
-            <!-- دکمه کپی رندوم اینجاست -->
-            <button class="btn-random" id="random20Btn"><i class="fas fa-random"></i> کپی 20 تا رندوم</button>
+            <button class="btn-sub" id="subLinkBtn"><i class="fas fa-link"></i> لینک اشتراک</button>
+            <button class="btn-random" id="random20Btn"><i class="fas fa-random"></i> کپی 20 رندوم</button>
             <button class="btn-outline" id="copyAllBtn"><i class="fas fa-copy"></i> کپی همه</button>
         </div>
     </div>
@@ -346,7 +345,7 @@
 <div class="toast" id="toast">پیام سیستم</div>
 
 <script>
-    // --- پیکربندی منابع ---
+    // --- لیست کامل منابع ---
     const SOURCES = [
         { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet", type: "text" },
         { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo", type: "text" },
@@ -365,6 +364,7 @@
         { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft Purkow", type: "base64" }
     ];
 
+    // اضافه کردن لینک‌های MahsaNet MTN/MCI
     for (let i = 1; i <= 4; i++) {
         SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}`, type: "base64" });
         SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}`, type: "base64" });
@@ -382,7 +382,7 @@
         installPrompt: null
     };
 
-    // --- توابع اصلی ---
+    // --- توابع اصلی دریافت ---
 
     async function fetchAll() {
         ui.loading(true);
@@ -392,50 +392,33 @@
 
         for (const source of SOURCES) {
             try {
-                let finalUrl = source.url;
-                if (finalUrl.includes("github.com") && finalUrl.includes("/blob/")) {
-                    finalUrl = finalUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
-                }
-
+                let finalUrl = source.url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
                 const res = await fetch(finalUrl);
                 if (!res.ok) throw new Error('Err');
                 let text = await res.text();
 
                 if (source.type === 'base64') {
-                    try { 
-                        const decodedFull = atob(text.trim());
-                        text = decodedFull;
-                    } catch(e) {}
+                    try { text = atob(text.trim()); } catch(e) {}
                 }
 
                 const lines = text.split(/\r?\n/);
-                
                 for (let line of lines) {
                     line = line.trim();
                     if (!line) continue;
-
-                    if (!line.includes('://')) {
-                         try { line = atob(line); } catch(e) {}
-                    }
+                    if (!line.includes('://')) { try { line = atob(line); } catch(e) {} }
 
                     if (line.match(/^(vmess|vless|trojan|ss|ssr|warp):\/\//i)) {
                         const details = parseDetails(line);
+                        // حذف تکراری‌ها بر اساس IP:Port
                         const duplicateKey = `${details.ip}:${details.port}`;
 
                         if (!uniqueSet.has(duplicateKey)) {
                             uniqueSet.add(duplicateKey);
-                            state.all.push({
-                                config: line,
-                                source: source.name,
-                                ...details
-                            });
+                            state.all.push({ config: line, source: source.name, ...details });
                         }
                     }
                 }
-
-            } catch (e) {
-                console.log(`Failed: ${source.name}`);
-            }
+            } catch (e) { console.log(`Failed: ${source.name}`); }
             fetched++;
             document.getElementById('progressBar').style.width = `${(fetched / SOURCES.length) * 100}%`;
             document.getElementById('loadingText').innerText = `دریافت ${fetched} از ${SOURCES.length} منبع...`;
@@ -447,49 +430,109 @@
         ui.toast(`موفق: ${state.all.length} کانفیگ دریافت شد`, 'success');
     }
 
-    // --- پارسر هوشمند ---
     function parseDetails(config) {
         let ip = 'unknown', port = '0', type = 'unknown', net = 'tcp', security = 'none', remark = '';
-        
         try {
             const proto = config.split('://')[0].toLowerCase();
             type = proto;
-
             if (proto === 'vmess' || proto === 'vless') {
                 if (proto === 'vmess' && !config.includes('@')) {
                     try {
-                        const b64 = config.split('://')[1];
-                        const json = JSON.parse(decodeURIComponent(escape(atob(b64))));
-                        ip = json.add; port = json.port; net = json.net; remark = json.ps;
-                        security = json.tls || 'none';
+                        const json = JSON.parse(decodeURIComponent(escape(atob(config.split('://')[1]))));
+                        ip = json.add; port = json.port; net = json.net; remark = json.ps; security = json.tls || 'none';
                     } catch(e) {}
                 } else {
                     const url = new URL(config);
-                    ip = url.hostname;
-                    port = url.port;
-                    remark = decodeURIComponent(url.hash.slice(1));
+                    ip = url.hostname; port = url.port; remark = decodeURIComponent(url.hash.slice(1));
                     const params = new URLSearchParams(url.search);
-                    net = params.get('type') || params.get('net') || 'tcp';
-                    security = params.get('security') || 'none';
+                    net = params.get('type') || params.get('net') || 'tcp'; security = params.get('security') || 'none';
                 }
-            } else if (proto === 'trojan' || proto === 'ss' || proto === 'ssr') {
+            } else if (['trojan','ss','ssr'].includes(proto)) {
                 const url = new URL(config);
-                ip = url.hostname;
-                port = url.port;
-                remark = decodeURIComponent(url.hash.slice(1));
+                ip = url.hostname; port = url.port; remark = decodeURIComponent(url.hash.slice(1));
             }
-        } catch(e) {
-            remark = config.substring(0, 15) + '...';
-        }
-
-        if (security === 'reality' || config.includes('security=reality')) {
-            security = 'reality';
-        }
-
+        } catch(e) { remark = config.substring(0, 15) + '...'; }
+        if (security === 'reality' || config.includes('security=reality')) security = 'reality';
         return { ip, port, type, net, security, remark: remark || 'No Name' };
     }
 
-    // --- مدیریت نمایش و فیلترها ---
+    // --- الگوریتم انتخاب هوشمند 20 تایی (تنوع + رندوم) ---
+    function getDiverseRandom20() {
+        if (state.filtered.length === 0) return null;
+
+        const selected = [];
+        const usedConfigSet = new Set();
+        
+        // 1. گروه‌بندی کانفیگ‌ها بر اساس منبع
+        const groups = {};
+        state.filtered.forEach(item => {
+            if (!groups[item.source]) groups[item.source] = [];
+            groups[item.source].push(item);
+        });
+
+        // 2. تلاش برای برداشتن حداقل یک کانفیگ از هر منبع
+        const sourceNames = Object.keys(groups);
+        sourceNames.sort(() => 0.5 - Math.random()); // شافل کردن منابع
+
+        sourceNames.forEach(src => {
+            if (selected.length >= 20) return;
+            
+            const items = groups[src];
+            // انتخاب یک آیتم رندوم از این گروه
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+            
+            selected.push(randomItem);
+            usedConfigSet.add(randomItem.config);
+        });
+
+        // 3. اگر هنوز جا داریم، بقیه رو از کل لیست به صورت رندوم پر کن
+        if (selected.length < 20) {
+            const leftovers = state.filtered.filter(item => !usedConfigSet.has(item.config));
+            leftovers.sort(() => 0.5 - Math.random()); // شافل کردن باقی‌مانده‌ها
+            
+            const needed = 20 - selected.length;
+            selected.push(...leftovers.slice(0, needed));
+        }
+
+        // 4. لیست نهایی رو دوباره شافل کن
+        selected.sort(() => 0.5 - Math.random());
+
+        return selected.map(i => i.config).join('\n');
+    }
+
+    // --- عملکرد دکمه‌ها ---
+
+    function generateSubLink() {
+        const content = getDiverseRandom20();
+        if (!content) return ui.toast('لیست خالی است', 'error');
+        
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const base64Content = btoa(unescape(encodeURIComponent(content)));
+
+        const modalBody = document.getElementById('modalBody');
+        document.getElementById('modalTitle').innerText = 'لینک اشتراک (20 تا متنوع)';
+        modalBody.innerHTML = `
+            <p style="font-size:0.9rem; color:#666;">فایل شامل 20 کانفیگ (حداقل یکی از هر منبع):</p>
+            <a href="${url}" download="vhub_mix_20.txt" class="btn-primary" style="text-decoration:none; display:flex; margin-bottom:10px;">
+                <i class="fas fa-download"></i> دانلود فایل
+            </a>
+            <button class="btn-outline" style="width:100%" onclick="copy('${base64Content}')">
+                 کپی کد Base64 (ایمپورت)
+            </button>
+        `;
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function copyRandom20() {
+        const content = getDiverseRandom20();
+        if (!content) return ui.toast('لیست خالی است', 'error');
+        
+        copy(content);
+        ui.toast('20 کانفیگ متنوع کپی شد', 'success');
+    }
+
+    // --- رابط کاربری ---
 
     function filterData() {
         const pFilter = document.getElementById('protocolFilter').value;
@@ -498,17 +541,10 @@
         const search = document.getElementById('searchInput').value.toLowerCase();
 
         state.filtered = state.all.filter(item => {
-            let pMatch = true;
-            if (pFilter === 'reality') pMatch = item.security === 'reality';
-            else if (pFilter !== 'all') pMatch = item.type === pFilter;
-
+            let pMatch = (pFilter === 'all') || (pFilter === 'reality' ? item.security === 'reality' : item.type === pFilter);
             let nMatch = (nFilter === 'all') || (item.net === nFilter);
             let sMatch = (sFilter === 'all') || (item.source === sFilter);
-            let searchMatch = !search || 
-                item.remark.toLowerCase().includes(search) || 
-                item.ip.includes(search) || 
-                item.source.toLowerCase().includes(search);
-
+            let searchMatch = !search || item.remark.toLowerCase().includes(search) || item.ip.includes(search) || item.source.toLowerCase().includes(search);
             return pMatch && nMatch && sMatch && searchMatch;
         });
 
@@ -526,211 +562,72 @@
         itemsToShow.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
-            
             let tagsHtml = `<span class="tag tag-proto">${item.type.toUpperCase()}</span>`;
             if (item.security === 'reality') tagsHtml += `<span class="tag tag-reality">REALITY</span>`;
             if (item.net && item.net !== 'tcp') tagsHtml += `<span class="tag tag-net">${item.net.toUpperCase()}</span>`;
             tagsHtml += `<span class="tag tag-loc">${item.source}</span>`;
 
             card.innerHTML = `
-                <div class="card-top">
-                    <div class="tags">${tagsHtml}</div>
-                    <div style="font-size: 0.7rem; opacity: 0.6;">${item.port}</div>
-                </div>
+                <div class="card-top"><div class="tags">${tagsHtml}</div><div style="font-size:0.7rem;opacity:0.6;">${item.port}</div></div>
                 <div class="card-title">${item.remark}</div>
-                <div class="card-info">
-                    <span>${item.ip}</span>
-                    <span id="ping-${item.ip.replace(/[.:]/g,'-')}" style="cursor:pointer;" onclick="checkIp('${item.ip}')">بررسی IP <i class="fas fa-search-location"></i></span>
-                </div>
+                <div class="card-info"><span>${item.ip}</span><span id="ping-${item.ip.replace(/[.:]/g,'-')}" style="cursor:pointer;" onclick="checkIp('${item.ip}')">بررسی IP <i class="fas fa-search-location"></i></span></div>
                 <div class="card-actions">
-                    <button class="btn-card btn-connect" onclick="connect('${item.config}')">
-                        <i class="fas fa-bolt"></i> اتصال مستقیم
-                    </button>
-                    <button class="btn-card" onclick="copy('${item.config}')">
-                        <i class="fas fa-copy"></i> کپی
-                    </button>
-                    <button class="btn-card" onclick="showQr('${item.config}')">
-                        <i class="fas fa-qrcode"></i> QR
-                    </button>
+                    <button class="btn-card btn-connect" onclick="connect('${item.config}')"><i class="fas fa-bolt"></i> اتصال مستقیم</button>
+                    <button class="btn-card" onclick="copy('${item.config}')"><i class="fas fa-copy"></i> کپی</button>
+                    <button class="btn-card" onclick="showQr('${item.config}')"><i class="fas fa-qrcode"></i> QR</button>
                 </div>
             `;
             grid.appendChild(card);
         });
-
-        const loadMoreBtn = document.getElementById('loadMore');
-        if (end < state.filtered.length) {
-            loadMoreBtn.style.display = 'block';
-        } else {
-            loadMoreBtn.style.display = 'none';
-        }
-
-        document.getElementById('statsText').innerText = `${state.filtered.length} کانفیگ (کل: ${state.all.length})`;
+        document.getElementById('loadMore').style.display = end < state.filtered.length ? 'block' : 'none';
+        document.getElementById('statsText').innerText = `${state.filtered.length} کانفیگ`;
     }
 
-    function loadMore() {
-        state.page++;
-        renderGrid();
-    }
-
-    // --- ابزارهای کاربردی ---
-
-    function generateSubLink() {
-        if (state.filtered.length === 0) return ui.toast('لیست خالی است', 'error');
-        
-        const content = state.filtered.map(i => i.config).join('\n');
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        
-        // اصلاح ارور کاراکترهای فارسی در btoa
-        const base64Content = btoa(unescape(encodeURIComponent(content)));
-
-        const modalBody = document.getElementById('modalBody');
-        document.getElementById('modalTitle').innerText = 'لینک اشتراک فایل';
-        modalBody.innerHTML = `
-            <p style="font-size:0.9rem; color:#666;">دانلود فایل اشتراک برای استفاده در نرم‌افزار:</p>
-            <a href="${url}" download="vhub_sub.txt" class="btn-primary" style="text-decoration:none; display:flex; margin-bottom:10px;">
-                <i class="fas fa-download"></i> دانلود فایل
-            </a>
-            <button class="btn-outline" style="width:100%" onclick="copy('${base64Content}')">
-                 کپی کد Base64 (برای ایمپورت)
-            </button>
-        `;
-        document.getElementById('modal').classList.add('open');
-    }
-
-    function copyRandom20() {
-        if (state.filtered.length === 0) return ui.toast('لیست خالی است', 'error');
-        
-        const shuffled = [...state.filtered].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 20).map(i => i.config).join('\n');
-        
-        copy(selected);
-        ui.toast('20 کانفیگ رندوم کپی شد', 'success');
-    }
+    function loadMore() { state.page++; renderGrid(); }
 
     async function checkIp(ip) {
         const id = `ping-${ip.replace(/[.:]/g,'-')}`;
         const el = document.getElementById(id);
         if(!el) return;
-        
         el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        
         try {
-            // حل مشکل Mixed Content با استفاده از HTTPS
+            // استفاده از HTTPS برای جلوگیری از Mixed Content
             const res = await fetch(`https://ipapi.co/${ip}/json/`);
             if(!res.ok) throw new Error('Limit');
             const data = await res.json();
             el.innerHTML = `${data.country_name} | ${data.org}`;
             el.style.color = 'var(--success)';
-        } catch(e) {
-            el.innerHTML = 'خطا/محدودیت';
-            el.style.color = 'var(--danger)';
-        }
+        } catch(e) { el.innerHTML = 'خطا/محدودیت'; el.style.color = 'var(--danger)'; }
     }
 
-    // --- PWA Logic ---
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        state.installPrompt = e;
-        document.getElementById('installPwa').style.display = 'block';
-    });
+    // --- PWA & Helpers ---
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); state.installPrompt = e; document.getElementById('installPwa').style.display = 'block'; });
+    async function installApp() { if(state.installPrompt) { state.installPrompt.prompt(); if((await state.installPrompt.userChoice).outcome === 'accepted') document.getElementById('installPwa').style.display = 'none'; } }
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-    async function installApp() {
-        if (state.installPrompt) {
-            state.installPrompt.prompt();
-            const { outcome } = await state.installPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('installPwa').style.display = 'none';
-            }
-        }
-    }
-
-    if ('serviceWorker' in navigator) {
-        // جلوگیری از ارور قرمز در کنسول اگر فایل sw.js وجود نداشت
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    // --- UI Helpers ---
     const ui = {
         loading: (show) => document.getElementById('loader').classList.toggle('active', show),
         toast: (msg, type) => {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.background = type === 'error' ? 'var(--danger)' : '#333';
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            const t = document.getElementById('toast'); t.innerText = msg; t.style.background = type === 'error' ? 'var(--danger)' : '#333'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
         }
     };
 
-    function connect(conf) {
-        // تلاش برای باز کردن برنامه
-        window.location.href = conf;
-        // همیشه کپی هم انجام شود تا اگر برنامه باز نشد کاربر بتواند پیست کند
-        copy(conf);
-        ui.toast('لینک کپی شد (اگر برنامه باز نشد، دستی پیست کنید)', 'success');
-    }
-
-    function copy(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            ui.toast('کپی شد!', 'success');
-        }).catch(() => {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            ui.toast('کپی شد!', 'success');
-        });
-    }
-
-    function showQr(text) {
-        document.getElementById('modalTitle').innerText = 'QR Code';
-        const container = document.getElementById('modalBody');
-        container.innerHTML = '<canvas id="qrCanvas"></canvas>';
-        QRCode.toCanvas(document.getElementById('qrCanvas'), text, { width: 250 });
-        document.getElementById('modal').classList.add('open');
-    }
-
-    function closeModal() {
-        document.getElementById('modal').classList.remove('open');
-    }
-
+    function connect(conf) { window.location.href = conf; copy(conf); ui.toast('کپی شد (دستی وارد کنید)', 'success'); }
+    function copy(text) { navigator.clipboard.writeText(text).then(()=>ui.toast('کپی شد!','success')).catch(()=>{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);ui.toast('کپی شد!','success');}); }
+    function showQr(text) { document.getElementById('modalTitle').innerText = 'QR Code'; document.getElementById('modalBody').innerHTML = '<canvas id="qrCanvas"></canvas>'; QRCode.toCanvas(document.getElementById('qrCanvas'), text, { width: 250 }); document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+    
     function updateUI() {
         const sources = [...new Set(state.all.map(i => i.source))].sort();
         const sSelect = document.getElementById('sourceFilter');
         sSelect.innerHTML = '<option value="all">همه منابع</option>';
-        sources.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s; opt.innerText = s;
-            sSelect.appendChild(opt);
-        });
-
+        sources.forEach(s => sSelect.appendChild(new Option(s, s)));
         filterData();
-        
-        const d = new Date();
-        document.getElementById('updateTime').innerText = `آخرین: ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const d = new Date(); document.getElementById('updateTime').innerText = `آخرین: ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
-    function saveData() {
-        const data = JSON.stringify({ items: state.all, time: Date.now() });
-        try { localStorage.setItem(CONFIG.key, LZString.compressToUTF16(data)); } catch(e){}
-    }
-
-    function loadData() {
-        try {
-            const raw = localStorage.getItem(CONFIG.key);
-            if (raw) {
-                const data = JSON.parse(LZString.decompressFromUTF16(raw));
-                if (Date.now() - data.time < 14400000) {
-                    state.all = data.items;
-                    updateUI();
-                    return true;
-                }
-            }
-        } catch(e) {}
-        return false;
-    }
+    function saveData() { try { localStorage.setItem(CONFIG.key, LZString.compressToUTF16(JSON.stringify({ items: state.all, time: Date.now() }))); } catch(e){} }
+    function loadData() { try { const raw = localStorage.getItem(CONFIG.key); if (raw) { const data = JSON.parse(LZString.decompressFromUTF16(raw)); if (Date.now() - data.time < 14400000) { state.all = data.items; updateUI(); return true; } } } catch(e){} return false; }
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('updateBtn').onclick = fetchAll;
@@ -738,19 +635,11 @@
         document.getElementById('copyAllBtn').onclick = () => copy(state.filtered.map(i => i.config).join('\n'));
         document.getElementById('random20Btn').onclick = copyRandom20;
         
-        ['protocolFilter', 'networkFilter', 'sourceFilter', 'searchInput'].forEach(id => {
-            document.getElementById(id).addEventListener('input', filterData);
-        });
+        ['protocolFilter', 'networkFilter', 'sourceFilter', 'searchInput'].forEach(id => document.getElementById(id).addEventListener('input', filterData));
+        document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target.id === 'modal') closeModal();
-        });
-
-        if (!loadData()) {
-            fetchAll();
-        }
+        if (!loadData()) fetchAll();
     });
-
 </script>
 </body>
 </html>
