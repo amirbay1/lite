@@ -3,1488 +3,791 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نقاط اتصال امن</title> <!-- Changed title -->
-    <!-- QR code library -->
+    <title>هاب اتصال امن | V2Ray Aggregator</title>
+    <meta name="description" content="مجموعه کانفیگ‌های رایگان V2Ray و ابزارهای اتصال امن">
+    
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <!-- LZ-String library for compression -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
-    <!-- Inter font import -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Vazirmatn Font (Beautiful Persian Font) -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* Base styles matching the tgp theme */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sec: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #111827;
+                --card-bg: #1f2937;
+                --text-main: #f9fafb;
+                --text-sec: #d1d5db;
+                --border: #374151;
+            }
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
         body {
-            font-family: 'Inter', Tahoma, sans-serif;
-            background: #f4f8fb;
-            color: #333;
-            padding: 20px;
-            direction: rtl; /* Right-to-left for Persian */
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Layout */
         .container {
             width: 100%;
-            max-width: 960px;
+            max-width: 1200px;
             padding: 20px;
-            box-sizing: border-box; /* Include padding in width */
+            margin: 0 auto;
         }
 
-        .header {
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 10px;
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
         }
 
         h1 {
-            margin: 0;
-            font-size: 32px; /* Larger title */
-            color: #0088cc;
-            text-align: center;
-            font-weight: 700; /* Bolder title */
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
 
-        .info-bar {
+        /* Controls & Filters */
+        .controls {
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 20px;
-            background-color: #e3f2fd; /* Light blue background */
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .filter-bar {
-            display: flex; /* Changed to flex to control visibility via JS */
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
             justify-content: center;
-            width: 100%;
-            display: none; /* Hidden by default, shown after fetch completes */
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .filter-group label {
-            font-size: 14px;
-            color: #555;
-            cursor: pointer; /* Indicate it's clickable */
-        }
-
-        .filter-group input[type="checkbox"] {
-            margin-left: 5px; /* Space between checkbox and label for RTL */
-            cursor: pointer;
-        }
-
-        .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #fff;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .filter-group select:focus {
-            border-color: #0088cc;
-        }
-
-        #proxies { /* Renamed from configsContainer to proxies for consistency with new template */
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px; /* Increased gap between cards */
-            width: 100%;
-        }
-
-        .proxy-card { /* Renamed from config-card to proxy-card */
-            background: #fff;
+            margin-bottom: 30px;
+            background: var(--card-bg);
             padding: 20px;
-            border-radius: 12px; /* More rounded corners */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Stronger shadow */
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        button:active { transform: scale(0.96); }
+        
+        .btn-primary { background-color: var(--primary); }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        
+        .btn-purple { background-color: #8b5cf6; }
+        .btn-purple:hover { background-color: #7c3aed; }
+        
+        .btn-green { background-color: var(--success); }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-sec);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* Proxy Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Smooth hover effects */
-            position: relative; /* Needed for absolute positioning of tags */
+            overflow: hidden;
         }
 
-        .proxy-card:hover {
-            transform: translateY(-5px); /* Lift effect on hover */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .proxy-type-tag {
-            position: absolute;
-            top: 10px;
-            left: 10px; /* Type tag on the left */
-            background-color: #0088cc;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10;
-        }
-
-        .national-tag {
-            position: absolute;
-            top: 40px; /* Adjusted position to be below protocol tag */
-            left: 10px; /* Aligned with protocol tag */
-            background-color: #ffc107; /* A distinct color, e.g., amber/gold */
-            color: #333;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10;
-        }
-        .national-tag i {
-            margin-left: 5px; /* Space between icon and text */
-        }
-
-        .source-tag { /* New style for source tag */
-            position: absolute;
-            top: 70px; /* Position below national tag if present, or below type tag */
-            left: 10px;
-            background-color: #607d8b; /* A distinct color for source */
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10;
-        }
-        .source-tag i {
-            margin-left: 5px;
-        }
-
-        .proxy-card h4 {
-            margin: 0 0 5px; /* Reduced margin to fit details */
-            font-size: 18px;
-            word-break: break-all; /* Ensures long hostnames wrap */
-            color: #00567e; /* Darker blue for host:port */
-            font-weight: 600;
-            padding-left: 100px; /* Increased padding to make space for both tags */
-            padding-right: 20px; /* Removed right padding if not needed, or adjust as necessary */
-        }
-
-        .proxy-details { /* New class for displaying details under title */
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 10px;
-            word-break: break-all;
-        }
-
-        .proxy-actions {
+        .card-header {
             display: flex;
-            flex-direction: column; /* Stack buttons vertically by default */
-            gap: 10px;
-            width: 100%;
-            margin-top: 10px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
         }
 
-        .proxy-actions a, .proxy-actions button {
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-protocol { background: #e0f2fe; color: #0369a1; }
+        .badge-source { background: #f3f4f6; color: #4b5563; font-weight: 500; display: flex; align-items: center; gap: 4px; margin-top: 8px; width: fit-content; font-size: 0.7rem; }
+        .badge-national { background: #fef3c7; color: #b45309; }
+
+        .card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: ltr; /* Force LTR for domains/IPs */
+            text-align: right;
+        }
+
+        .card-meta {
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            margin-bottom: 15px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-actions {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .card-btn {
+            background: var(--bg-color);
+            color: var(--text-main);
+            padding: 8px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+        .card-btn:hover { background: #e5e7eb; }
+        
+        .btn-full { grid-column: 1 / -1; }
+
+        /* Loading & Progress */
+        .loading-container {
+            width: 100%;
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .loading-container.active { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
             justify-content: center;
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            border: none;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
         }
-
-        .proxy-actions a:hover {
-            background-color: #006699;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .proxy-actions button {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .proxy-actions button:hover {
-            background-color: #d0d0d0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        /* Styling for Font Awesome icons within buttons */
-        .proxy-actions button i {
-            margin-left: 8px; /* Space between icon and text for RTL */
-        }
-
-        .loading-message {
+        .modal-overlay.open { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 90%;
+            width: 350px;
             text-align: center;
-            padding: 20px;
-            font-size: 1.1em;
-            color: #0088cc;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         footer {
-            margin-top: 40px;
-            font-size: 0.9em;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--text-sec);
             text-align: center;
-            color: #777;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
             width: 100%;
         }
 
-        /* Responsive adjustments for smaller screens */
-        @media (min-width: 640px) {
-            .proxy-actions {
-                flex-direction: row; /* Buttons side-by-side on larger screens */
-                justify-content: flex-start;
-            }
-            .proxy-actions a, .proxy-actions button {
-                flex-grow: 0; /* Don't grow to fill space */
-            }
-        }
-        .refresh-button {
-            background: #4CAF50; /* Green color for refresh */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-            margin-top: 10px; /* Space from title */
-        }
-        .refresh-button:hover {
-            background-color: #45a049;
-        }
-
-        /* Progress and Timer Section - Integrated into new theme */
-        .progress-section { /* Renamed from progress-container for clarity */
-            background-color: #e3f2fd; /* Light blue background */
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 15px;
-            margin-bottom: 20px;
-            width: 100%;
-            display: none; /* Hidden by default */
-        }
-        .progress-bar-container { /* Renamed from progress-container */
-            background-color: #c5e1f7; /* Lighter blue for container */
-            border-radius: 8px;
-            height: 20px;
-            width: 100%;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        .progress-bar {
-            background-color: #0088cc; /* Blue progress bar */
-            height: 100%;
-            width: 0%;
-            border-radius: 8px;
-            transition: width 0.3s ease-in-out;
-        }
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        .loading-spinner { /* Re-styled for new theme */
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0088cc; /* Blue spinner */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 50px auto;
-            display: none; /* Hidden by default */
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Message Box - Re-styled for new theme */
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px; /* For RTL, position right */
-            background-color: #4CAF50; /* Green for success */
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-            text-align: right;
-            max-width: 300px; /* Limit width */
-        }
-        .message-box.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .message-box.success {
-            background-color: #4CAF50; /* Green */
-        }
-        .message-box.error {
-            background-color: #f44336; /* Red */
-        }
-        .message-box.info { /* New style for info messages */
-            background-color: #2196F3; /* Blue for info */
-        }
-        .message-box button { /* Style for buttons inside message box */
-            background-color: #fff;
-            color: #0088cc;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 13px;
-            transition: background-color 0.2s;
-            width: 100%; /* Full width button */
-        }
-        .message-box button:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* QR Code Modal Styles */
-        .qr-modal {
-            position: fixed;
-            z-index: 1001; /* Above other elements */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6); /* Semi-transparent black background */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .qr-modal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .qr-modal-content {
-            background-color: #fefefe;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-            text-align: center;
-            max-width: 320px; /* Max width for QR modal */
-            width: 90%; /* Responsive width */
-        }
-        .qr-modal-close {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            left: 15px; /* Position close button on left for RTL */
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        .qr-modal-close:hover,
-        .qr-modal-close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .qr-modal-content h3 {
-            margin-top: 0;
-            color: #0088cc;
-            font-size: 22px;
-            margin-bottom: 15px;
-        }
-        .qr-modal-content p {
-            font-size: 14px;
-            color: #666;
-            margin-top: 10px;
-        }
-        .qr-canvas {
-            display: block; /* Ensure canvas is block for centering */
-            margin: 0 auto; /* Center the canvas */
-            border: 1px solid #eee;
-            border-radius: 8px;
-        }
-        /* New styles for test result display */
-        .test-result-display {
-            margin-top: 10px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            text-align: center;
-            word-break: break-word;
-            opacity: 0; /* Hidden by default */
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .test-result-display.show {
-            opacity: 1;
-        }
-
-        .test-result-display.success {
-            background-color: #e6ffe6; /* Light green */
-            color: #28a745; /* Dark green text */
-            border: 1px solid #28a745;
-        }
-
-        .test-result-display.error {
-            background-color: #ffe6e6; /* Light red */
-            color: #dc3545; /* Dark red text */
-            border: 1px solid #dc3545;
-        }
-
-        .test-result-display.info {
-            background-color: #e6f7ff; /* Light blue */
-            color: #007bff; /* Dark blue text */
-            border: 1px solid #007bff;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-lock"></i> لیست نقاط اتصال امن</h1>
-            <button class="refresh-button" id="updateButton"><i class="fas fa-sync-alt"></i> بروزرسانی لیست</button>
-            <div class="info-bar">
-                <span id="proxyCount">تعداد کل کانفیگ‌ها: 0</span>
-                <span id="lastUpdatedDate">آخرین بروزرسانی: --:--</span>
-            </div>
-        </div>
 
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label for="sourceFilter">مخزن:</label>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shield-halved"></i> هاب اتصال امن</h1>
+            <p style="color: var(--text-sec);">مجموعه‌ای از بهترین کانفیگ‌های V2Ray برای دسترسی آزاد</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls" id="filterSection" style="display: none;">
+            <div class="input-group">
+                <i class="fas fa-filter" style="color: var(--text-sec);"></i>
                 <select id="sourceFilter">
                     <option value="all">همه مخازن</option>
-                    <!-- Options will be populated by JavaScript -->
                 </select>
             </div>
-            <button class="refresh-button" id="copyAllButton" style="background-color: #0088cc; margin-top: 0; display: none;"><i class="fas fa-copy"></i> کپی همه کانفیگ‌ها</button>
-            <button class="refresh-button" id="copyRandom20Button" style="background-color: #8A2BE2; margin-top: 0; display: none;"><i class="fas fa-random"></i> کپی 20 کانفیگ رندم</button>
+            
+            <div class="input-group">
+                <i class="fas fa-search" style="color: var(--text-sec);"></i>
+                <input type="text" id="searchInput" placeholder="جستجو (نام، پروتکل...)">
+            </div>
+
+            <button id="updateButton" class="btn-primary">
+                <i class="fas fa-sync-alt"></i> بروزرسانی
+            </button>
+            <button id="copyAllButton" class="btn-purple">
+                <i class="fas fa-copy"></i> کپی همه
+            </button>
+            <button id="copyRandomButton" class="btn-green">
+                <i class="fas fa-random"></i> 20 تایی رندوم
+            </button>
         </div>
 
-        <!-- Progress and Timer Section -->
-        <div class="progress-section" id="progressSection">
-            <div class="progress-info">
-                <span id="currentSource">در حال بارگذاری...</span>
-                <span id="elapsedTime">00:00</span>
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
+        <div class="stats-bar">
+            <span id="proxyCount">0 کانفیگ</span>
+            <span id="lastUpdatedDate">بروزرسانی: --</span>
         </div>
 
-        <div id="loading" class="loading-spinner"></div>
-        <div id="proxies"></div>
-        <div id="loadingMore" class="loading-message" style="display:none;">در حال بارگذاری نقاط اتصال بیشتر...</div>
-        <div id="messageBox" class="message-box"></div>
-
-        <!-- QR Code Modal Structure -->
-        <div id="qrModal" class="qr-modal">
-            <div class="qr-modal-content">
-                <button id="qrModalClose" class="qr-modal-close">✖</button>
-                <h3>کد QR کانفیگ</h3>
-                <canvas id="qrCanvas" class="qr-canvas"></canvas>
-                <p>این کد QR را با اپلیکیشن خود اسکن کنید.</p>
+        <!-- Loading -->
+        <div id="loadingSection" class="loading-container">
+            <div class="spinner"></div>
+            <div id="loadingText" style="margin-bottom: 5px;">در حال دریافت اطلاعات...</div>
+            <div class="progress-bar-wrap">
+                <div id="progressBar" class="progress-bar"></div>
             </div>
+            <small id="elapsedTime" style="display: block; margin-top: 5px; color: var(--text-sec);">00:00</small>
         </div>
 
-        <footer>ساخته‌شده با ❤️ توسط شما</footer>
+        <!-- Content -->
+        <div id="proxiesGrid" class="grid"></div>
+        <div id="loadMoreTrigger" style="height: 50px; margin-top: 20px;"></div>
+
+        <footer>
+            طراحی شده با ❤️ برای آزادی اینترنت
+        </footer>
     </div>
 
-    <script type="text/javascript">
-        // List of countries for detection and display.
-        // These are the "clean" names that getCountry will return.
-        const countries = [
-            "Albania", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahrain", "Belgium", "Bolivia",
-            "Bosnia and Herzegovina",
-            "Brazil", "Bulgaria", "Canada", "Chile", "China", "Colombia", "Costa Rica",
-            "Croatia", "Cyprus", "Czechia", "Denmark", "Ecuador", "Estonia", "Finland", "France", "Germany",
-            "Gibraltar", "Greece", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Ireland", "Israel",
-            "Italy", "Japan", "Kazakhstan", "Latvia", "Lithuania", "Luxembourg", "Malaysia", "Malta", "Mauritius", "Mexico",
-            "Moldova", "New Zealand", "North Macedonia",
-            "Norway", "Paraguay", "Poland", "Portugal", "Puerto Rico", "Romania",
-            "Russia", "Serbia", "Seychelles", "Singapore", "Slovakia", "Slovenia", "South Africa", "South Korea",
-            "Spain", "Sweden", "Switzerland", "Taiwan", "Thailand", "The Netherlands", "Türkiye", "Ukraine",
-            "United Arab Emirates",
-            "United Kingdom", "United States", "Unknown",
-            "Vietnam"
-        ];
+    <!-- Modals -->
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color: var(--primary);">QR Code</h3>
+            <canvas id="qrCanvas"></canvas>
+            <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeModal()">بستن</button>
+        </div>
+    </div>
 
-        // DOM elements
-        const proxiesDiv = document.getElementById('proxies');
-        const proxyCountSpan = document.getElementById('proxyCount');
-        const lastUpdatedDateSpan = document.getElementById('lastUpdatedDate');
-        const loadingMoreDiv = document.getElementById('loadingMore');
-        const sourceFilterSelect = document.getElementById('sourceFilter'); // New: Get source filter select
-        const updateButton = document.getElementById('updateButton');
-        const copyAllButton = document.getElementById('copyAllButton');
-        const copyRandom20Button = document.getElementById('copyRandom20Button'); // New: Get random 20 button
-        const loadingSpinner = document.getElementById('loading');
-        const progressBar = document.getElementById('progressBar');
-        const currentSourceSpan = document.getElementById('currentSource');
-        const elapsedTimeSpan = document.getElementById('elapsedTime');
-        const progressSection = document.getElementById('progressSection');
-        const messageBox = document.getElementById('messageBox');
-        const qrModal = document.getElementById('qrModal');
-        const qrModalClose = document.getElementById('qrModalClose');
-        const qrCanvas = document.getElementById('qrCanvas');
-        const filterBar = document.querySelector('.filter-bar');
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">پیام سیستم</span>
+    </div>
 
+    <script>
+        // --- Configuration ---
+        const CONFIG = {
+            cacheKey: 'v2ray_hub_cache',
+            cacheExpiration: 12 * 60 * 60 * 1000, // 12 hours
+            proxiesPerLoad: 24,
+            iranConfigUrl: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt"
+        };
 
-        let allConfigurations = [];
-        let filteredConfigurations = [];
-        let currentProxyIndex = 0;
-        const proxiesPerLoad = 20;
-        let isLoading = false;
-        let timerInterval;
-
-        const CACHE_KEY = 'v2ray_configs_cache';
-        const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-        // Specific URL for Iran configs from SoliSpirit, to force its country to "Iran"
-        const IRAN_CONFIG_URL = "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt";
-
-        // List of V2Ray/Xray URLs to fetch with descriptive names
-        const directUrls = [
-            { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet" },
-            { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo" },
-            { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m" },
-            { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP" },
-            { url: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt", name: "iran" }
-        ];
-
-        const base64Urls = [
-            { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe" },
-            { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland" },
-            { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet" },
-            { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet" },
-            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "davudsedft" },
-            { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_BASE64.txt", name: "HamedP" },
-            { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft" }
-        ];
+        const SOURCES = {
+            direct: [
+                { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet" },
+                { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo" },
+                { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m" },
+                { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland" },
+                { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP (V2Ray)" },
+                { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP (Trojan)" },
+                { url: CONFIG.iranConfigUrl, name: "Iran National" }
+            ],
+            base64: [
+                { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe" },
+                { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland SS" },
+                { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet" },
+                { url: "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/app/sub.txt", name: "MahsaNet App" },
+                { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/pc.txt", name: "PurVPN PC" },
+                { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "PurVPN" }
+            ]
+        };
 
         // Add MahsaFreeConfig MTN/MCI
-        for (let i = 1; i <= 4; i++) {
-            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN` });
-            base64Urls.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI` });
+        for (let i = 1; i <= 3; i++) {
+            SOURCES.base64.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}` });
+            SOURCES.base64.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}` });
         }
 
-        // Combined list of all URLs to fetch
-        const allFetchUrls = [];
-        const processedUrls = new Set();
+        // --- State Management ---
+        let state = {
+            allConfigs: [],
+            filteredConfigs: [],
+            currentIndex: 0,
+            isLoading: false
+        };
 
-        directUrls.forEach(item => {
-            const rawUrl = convertToRawUrl(item.url.split('#')[0]);
-            if (!processedUrls.has(rawUrl)) {
-                allFetchUrls.push({ url: rawUrl, decode: false, sourceName: item.name });
-                processedUrls.add(rawUrl);
-            }
-        });
+        // --- DOM Elements ---
+        const els = {
+            grid: document.getElementById('proxiesGrid'),
+            filterSection: document.getElementById('filterSection'),
+            loading: document.getElementById('loadingSection'),
+            progressBar: document.getElementById('progressBar'),
+            loadingText: document.getElementById('loadingText'),
+            elapsedTime: document.getElementById('elapsedTime'),
+            sourceSelect: document.getElementById('sourceFilter'),
+            searchInput: document.getElementById('searchInput'),
+            count: document.getElementById('proxyCount'),
+            date: document.getElementById('lastUpdatedDate'),
+            toast: document.getElementById('toast'),
+            qrModal: document.getElementById('qrModal'),
+            loadMore: document.getElementById('loadMoreTrigger')
+        };
 
-        base64Urls.forEach(item => {
-            const rawUrl = convertToRawUrl(item.url.split('#')[0]);
-            if (!processedUrls.has(rawUrl)) {
-                allFetchUrls.push({ url: rawUrl, decode: true, sourceName: item.name });
-                processedUrls.add(rawUrl);
+        // --- Core Functions ---
+
+        async function init() {
+            // Check cache
+            const cached = loadFromCache();
+            if (cached) {
+                state.allConfigs = cached;
+                finalizeDataLoad();
             } else {
-                const existingEntry = allFetchUrls.find(entry => entry.url === rawUrl);
-                if (existingEntry) {
-                    existingEntry.decode = true; // Ensure it's marked for decoding if it's in base64Urls
-                    existingEntry.sourceName = item.name; // Update source name if it's a duplicate but now base64
-                }
-            }
-        });
-
-
-        /**
-         * Shows a temporary message box.
-         * This function is for global messages (like copy success/error), not for per-card test results.
-         * @param {string} message - The message to display.
-         * @param {string} type - 'success', 'error', or 'info' for styling.
-         */
-        function showGlobalMessage(message, type = 'success') {
-            messageBox.textContent = ''; // Clear previous text
-            const textNode = document.createTextNode(message);
-            messageBox.appendChild(textNode);
-
-            messageBox.className = 'message-box'; // Reset classes
-            messageBox.classList.add(type);
-            messageBox.classList.add('show');
-
-            setTimeout(() => {
-                messageBox.classList.remove('show');
-                while (messageBox.firstChild) {
-                    messageBox.removeChild(messageBox.firstChild);
-                }
-            }, 3000); // Shorter duration for global messages
-        }
-
-        /**
-         * Copies text to the clipboard using document.execCommand.
-         * @param {string} text - The text to copy.
-         */
-        function copyToClipboard(text) {
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showGlobalMessage('کانفیگ کپی شد!', 'success');
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-                showGlobalMessage('خطا در کپی کردن کانفیگ.', 'error');
-            }
-        }
-
-        /**
-         * Converts github.com/user/repo/blob/branch/path to raw.githubusercontent.com.
-         * @param {string} url - The GitHub URL.
-         * @returns {string} The raw content URL.
-         */
-        function convertToRawUrl(url) {
-            if (url.includes("github.com") && url.includes("/blob/")) {
-                return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
-            }
-            return url;
-        }
-
-        /**
-         * Extracts protocol from a V2Ray/Xray config string.
-         * @param {string} config - The config string.
-         * @returns {string} The protocol name (e.g., 'vmess', 'vless') or 'unknown'.
-         */
-        function getProtocol(config) {
-            const lowerCaseConfig = config.toLowerCase();
-            if (lowerCaseConfig.startsWith('vmess://')) return 'vmess';
-            if (lowerCaseConfig.startsWith('vless://')) return 'vless';
-            if (lowerCaseConfig.startsWith('trojan://')) return 'trojan';
-            if (lowerCaseConfig.startsWith('ss://')) return 'ss';
-            if (lowerCaseConfig.startsWith('ssr://')) return 'ssr';
-            if (lowerCaseConfig.startsWith('warp://')) return 'warp';
-            return 'unknown';
-        }
-
-        /**
-         * Extracts country from a V2Ray/Xray config string (heuristic).
-         * Returns the full country name as used in the `countries` array.
-         * @param {string} config - The config string.
-         * @returns {string} The detected country name or 'Unknown'.
-         */
-        function getCountry(config) {
-            const lowerCaseConfig = config.toLowerCase();
-            for (const country of countries) {
-                // Check for full country name (with spaces) in the config string
-                if (lowerCaseConfig.includes(country.toLowerCase())) {
-                    return country; // Return the clean name
-                }
-            }
-            return 'Unknown';
-        }
-
-        /**
-         * Extracts relevant display information from a V2Ray/Xray config string.
-         * @param {string} config - The V2Ray/Xray config string.
-         * @returns {Object} An object with { displayTitle: string, displayDetails: string }.
-         */
-        function parseV2rayConfigForDisplay(config) {
-            const protocol = getProtocol(config);
-            let displayTitle = `${protocol.toUpperCase()} کانفیگ`;
-            let displayDetails = '';
-
-            try {
-                if (protocol === 'vmess' || protocol === 'vless') {
-                    const base64Part = config.substring(protocol.length + 3); // e.g., "vmess://" is 8 chars
-                    let decodedJson = '';
-                    try {
-                        decodedJson = LZString.decompressFromBase64(base64Part); // Try LZ-String first
-                    } catch (e) {
-                        // If LZ-String fails, try standard Base64
-                        decodedJson = atob(base64Part);
-                    }
-                    
-                    const configObj = JSON.parse(decodedJson);
-
-                    if (configObj.ps) { // remark/name
-                        displayTitle = configObj.ps;
-                    } else if (configObj.add && configObj.port) { // address and port
-                        displayTitle = `${configObj.add}:${configObj.port}`;
-                    } else if (configObj.add) {
-                        displayTitle = configObj.add;
-                    }
-                    displayDetails = `پروتکل: ${protocol.toUpperCase()}`;
-                    if (configObj.add) displayDetails += `, آدرس: ${configObj.add}`;
-                    if (configObj.port) displayDetails += `, پورت: ${configObj.port}`;
-                    if (configObj.id) displayDetails += `, ID: ${configObj.id.substring(0, 8)}...`; // Show first few chars of ID
-                    if (configObj.net) displayDetails += `, شبکه: ${configObj.net}`;
-
-                } else if (protocol === 'trojan' || protocol === 'ss' || protocol === 'ssr' || protocol === 'warp') {
-                    // These protocols often have host:port directly in the URL
-                    const urlParts = config.split('://')[1];
-                    const atIndex = urlParts.indexOf('@');
-                    let hostPortPart = urlParts;
-                    if (atIndex !== -1) { // For ss://method:password@host:port or trojan://password@host:port
-                        hostPortPart = urlParts.substring(atIndex + 1);
-                    }
-                    const hashIndex = hostPortPart.indexOf('#');
-                    if (hashIndex !== -1) {
-                        hostPortPart = hostPortPart.substring(0, hashIndex);
-                    }
-                    const questionMarkIndex = hostPortPart.indexOf('?');
-                    if (questionMarkIndex !== -1) {
-                        hostPortPart = hostPortPart.substring(0, questionMarkIndex);
-                    }
-
-                    const lastColonIndex = hostPortPart.lastIndexOf(':');
-                    if (lastColonIndex !== -1) {
-                        const host = hostPortPart.substring(0, lastColonIndex);
-                        const port = hostPortPart.substring(lastColonIndex + 1);
-                        displayTitle = `${host}:${port}`;
-                        displayDetails = `پروتکل: ${protocol.toUpperCase()}, آدرس: ${host}, پورت: ${port}`;
-                    } else {
-                        displayTitle = hostPortPart;
-                        displayDetails = `پروتکل: ${protocol.toUpperCase()}, آدرس: ${hostPortPart}`;
-                    }
-
-                    // For SSR, try to extract remark if present
-                    if (protocol === 'ssr') {
-                        const params = new URLSearchParams(config.split('?')[1]);
-                        const remark = params.get('remarks');
-                        if (remark) {
-                            try {
-                                const decodedRemark = atob(remark);
-                                displayTitle = decodedRemark;
-                                displayDetails += `, نام: ${decodedRemark}`;
-                            } catch (e) {
-                                // If remark is not base64, use as is
-                                displayTitle = remark;
-                                displayDetails += `, نام: ${remark}`;
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn(`Failed to parse config for display: ${config}`, e);
-                // Fallback: display protocol and a truncated version of the config
-                displayTitle = `${protocol.toUpperCase()} کانفیگ`; // No "خطا در تحلیل"
-                displayDetails = `کانفیگ: ${config.substring(0, Math.min(config.length, 50))}...`; // Show first 50 chars or less
+                await fetchAllData();
             }
 
-            return { displayTitle, displayDetails };
+            setupEventListeners();
         }
 
-
-        /**
-         * Sends the config to the backend for real testing and displays the result.
-         * @param {string} configString - The config string.
-         * @param {HTMLElement} resultDisplayElement - The DOM element to display the result in.
-         */
-        async function testConfig(configString, resultDisplayElement) {
-            // Clear previous result and show loading state
-            resultDisplayElement.innerHTML = 'در حال تست...';
-            resultDisplayElement.className = 'test-result-display show info';
-
-            try {
-                const response = await fetch('/api/test-config', { // This is your hypothetical Vercel Serverless Function endpoint
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ config: configString }),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'خطا در برقراری ارتباط با بک‌اند تست.');
-                }
-
-                const result = await response.json();
-                if (result.status === 'active') {
-                    resultDisplayElement.innerHTML = `نقطه ی اتصال آماده ی استفادست. پینگ: ${result.pingMs}ms`;
-                    resultDisplayElement.className = 'test-result-display show success';
-                } else {
-                    resultDisplayElement.innerHTML = `نقطه ی اتصال غیرفعال است. دلیل: ${result.reason || 'نامشخص'}`;
-                    resultDisplayElement.className = 'test-result-display show error';
-                }
-
-            } catch (error) {
-                console.error('Error during config test:', error);
-                // Changed error message as per user request
-                resultDisplayElement.innerHTML = "قابلیت تست کانفیگ غیرفعال است.";
-                resultDisplayElement.className = 'test-result-display show error'; // Corrected typo here
-            }
+        function convertGithubUrl(url) {
+            return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
         }
 
-        /**
-         * Fetches content from a URL, optionally decodes Base64, and extracts configs.
-         * @param {Object} urlInfo - Object containing url and decode flag.
-         * @returns {Array<Object>} Array of config objects {config: string, protocol: string, country: string, isNational: boolean}.
-         */
-        async function fetchContent(urlInfo) {
-            const { url, decode, sourceName } = urlInfo; // Get sourceName here
-            console.log(`Fetching from: ${url}, decode: ${decode}`);
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    let errorMessage = `Error fetching ${url}: HTTP Status ${response.status}`;
-                    console.error(errorMessage);
-                    return [];
-                }
-                let text = await response.text();
-                // console.log(`Raw text from ${url}: ${text.substring(0, Math.min(text.length, 200))}...`); // Log first 200 chars
-
-                let linesToProcess = [];
-
-                if (decode) {
-                    try {
-                        // First level decode: the entire file content is Base64 encoded
-                        const decodedFullText = atob(text);
-                        // console.log(`Full text decoded (if applicable): ${decodedFullText.substring(0, Math.min(decodedFullText.length, 200))}...`);
-                        text = decodedFullText;
-                    } catch (e) {
-                        console.warn(`Warning: Initial Base64 decoding failed for ${url}. Attempting to use raw content. Error:`, e);
-                        // If initial decode fails, treat as direct content
-                    }
-                }
-                
-                // Split by lines
-                const rawLines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
-                console.log(`Number of raw lines from ${url} after initial processing: ${rawLines.length}`);
-
-                for (const line of rawLines) {
-                    const lowerCaseLine = line.toLowerCase();
-                    // If it already starts with a known protocol, use it as is
-                    if (lowerCaseLine.startsWith('vmess://') ||
-                        lowerCaseLine.startsWith('vless://') ||
-                        lowerCaseLine.startsWith('trojan://') ||
-                        lowerCaseLine.startsWith('ss://') ||
-                        lowerCaseLine.startsWith('ssr://') ||
-                        lowerCaseLine.startsWith('warp://')) {
-                        linesToProcess.push(line);
-                        // console.log(`Direct protocol line found: ${line.substring(0, Math.min(line.length, 50))}...`);
-                    } else {
-                        // Otherwise, try to Base64 decode the line itself and then detect protocol
-                        try {
-                            const decodedLine = atob(line);
-                            const decodedLowerCaseLine = decodedLine.toLowerCase();
-                            // console.log(`Line Base64 decoded: ${decodedLine.substring(0, Math.min(decodedLine.length, 100))}...`);
-
-                            // Check if the decoded line starts with any known protocol
-                            if (decodedLowerCaseLine.startsWith('vmess://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is VMess: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else if (decodedLowerCaseLine.startsWith('vless://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is VLess: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else if (decodedLowerCaseLine.startsWith('trojan://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is Trojan: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else if (decodedLowerCaseLine.startsWith('ss://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is SS: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else if (decodedLowerCaseLine.startsWith('ssr://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is SSR: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else if (decodedLowerCaseLine.startsWith('warp://')) {
-                                linesToProcess.push(decodedLine);
-                                // console.log(`Decoded line is WARP: ${decodedLine.substring(0, Math.min(decodedLine.length, 50))}...`);
-                            } else {
-                                // If it's a raw Base64 JSON (like the user's example), try to parse it
-                                // and prepend 'vmess://' if it looks like a VMess JSON
-                                try {
-                                    const jsonConfig = JSON.parse(decodedLine);
-                                    // Basic check for VMess JSON structure
-                                    if (jsonConfig.v && jsonConfig.ps && jsonConfig.add && jsonConfig.port && jsonConfig.id) {
-                                        // Re-encode to Base64 and prepend vmess://
-                                        // Use encodeURIComponent and unescape for Unicode characters before btoa
-                                        const finalConfigString = `vmess://${btoa(unescape(encodeURIComponent(decodedLine)))}`;
-                                        linesToProcess.push(finalConfigString);
-                                        // console.log(`Decoded line is VMess JSON, added: ${finalConfigString.substring(0, Math.min(finalConfigString.length, 50))}...`);
-                                    } else {
-                                        // console.warn(`Unknown decoded line format (not a recognized protocol or VMess JSON): ${decodedLine.substring(0, Math.min(decodedLine.length, 100))}...`);
-                                    }
-                                } catch (jsonParseError) {
-                                    // Not a valid JSON, discard
-                                    // console.warn(`Line is not a direct config link, nor a decodable config link, nor a valid JSON after Base64 decode: ${line.substring(0, Math.min(line.length, 50))}...`);
-                                }
-                            }
-                        } catch (e) {
-                            // Line is not Base64 decodable, discard
-                            // console.warn(`Line is not a direct config link, nor Base64 decodable: ${line.substring(0, Math.min(line.length, 50))}...`);
-                        }
-                    }
-                }
-                console.log(`Total configs found in ${url}: ${linesToProcess.length}`);
-                
-                return linesToProcess.map(config => {
-                    let detectedCountry = getCountry(config);
-                    let isNational = false;
-                    // Force country to "Iran" and mark as national if the config came from the specific Iran URL
-                    if (url === IRAN_CONFIG_URL) {
-                        detectedCountry = 'Iran';
-                        isNational = true;
-                    }
-                    return {
-                        config: config,
-                        protocol: getProtocol(config),
-                        country: detectedCountry,
-                        isNational: isNational,
-                        source: sourceName // Add source name to the config object
-                    };
-                });
-
-            } catch (error) {
-                console.error(`Network or processing error for ${url}:`, error);
-                return [];
-            }
-        }
-
-        /**
-         * Saves configurations to Local Storage using LZ-String compression.
-         * @param {Array<Object>} configs - Array of config objects.
-         */
-        function saveConfigsToLocalStorage(configs) {
-            try {
-                const dataToStore = {
-                    proxies: configs,
-                    timestamp: Date.now()
-                };
-                const jsonString = JSON.stringify(dataToStore);
-                const compressedString = LZString.compressToBase64(jsonString);
-                localStorage.setItem(CACHE_KEY, compressedString);
-                localStorage.setItem('lastUpdated', Date.now()); // Keep this separate for simplicity of display
-                showGlobalMessage('کانفیگ‌ها با موفقیت ذخیره شدند.', 'success');
-            } catch (e) {
-                console.error('Error saving configs to Local Storage:', e);
-                if (e.name === 'QuotaExceededError') {
-                    showGlobalMessage('خطا: فضای ذخیره‌سازی مرورگر پر شده است. برخی از کانفیگ‌ها ذخیره نشدند.', 'error');
-                } else {
-                    showGlobalMessage('خطا در ذخیره کانفیگ‌ها.', 'error');
-                }
-            }
-        }
-
-        /**
-         * Loads configurations from Local Storage, decompressing with LZ-String.
-         * @returns {boolean} True if configs were loaded, false otherwise.
-         */
-        function loadConfigsFromLocalStorage() {
-            const compressedData = localStorage.getItem(CACHE_KEY);
-            if (compressedData) {
-                try {
-                    const decompressedString = LZString.decompressFromBase64(compressedData);
-                    if (!decompressedString) {
-                        console.error('Decompression failed. Data might be corrupted or not compressed.');
-                        localStorage.removeItem(CACHE_KEY); // Clear potentially bad data
-                        return false;
-                    }
-                    const { proxies, timestamp } = JSON.parse(decompressedString);
-                    const now = Date.now();
-                    if (now - timestamp < CACHE_EXPIRATION_MS) {
-                        allConfigurations = proxies;
-                        updateFiltersAndCounts(); // Update counts and apply filters from loaded data
-                        showGlobalMessage('کانفیگ‌ها از حافظه محلی بارگذاری شدند.', 'success');
-                        // Show filters and copy all button if configs are loaded
-                        if (allConfigurations.length > 0) {
-                            filterBar.style.display = 'flex';
-                            copyAllButton.style.display = 'block';
-                            copyAllButton.disabled = false;
-                            copyRandom20Button.style.display = 'block'; // Show new button
-                            copyRandom20Button.disabled = false; // Enable new button
-                        }
-                        return true;
-                    } else {
-                        console.log('Cached data expired. Will fetch new data.');
-                        localStorage.removeItem(CACHE_KEY);
-                    }
-                } catch (e) {
-                    console.error('Error parsing or decompressing cached data:', e);
-                    localStorage.removeItem(CACHE_KEY); // Clear invalid cache
-                }
-            }
-            return false;
-        }
-
-        /**
-         * Updates the "Last Updated" text in the info bar.
-         */
-        function updateLastUpdatedTime() {
-            const lastUpdatedTimestamp = localStorage.getItem('lastUpdated');
-            if (lastUpdatedTimestamp) {
-                const date = new Date(parseInt(lastUpdatedTimestamp));
-                lastUpdatedDateSpan.textContent = `آخرین بروزرسانی: ${date.toLocaleDateString('fa-IR')} ${date.toLocaleTimeString('fa-IR')}`;
-            } else {
-                lastUpdatedDateSpan.textContent = 'آخرین بروزرسانی: --:--';
-            }
-        }
-
-        /**
-         * Populates filter dropdowns and updates total/filter counts.
-         */
-        function updateFiltersAndCounts() {
-            // Clear previous options except "همه"
-            sourceFilterSelect.innerHTML = '<option value="all">همه مخازن</option>'; // Only source filter
+        async function fetchAllData() {
+            els.loading.classList.add('active');
+            els.filterSection.style.display = 'none';
+            els.grid.innerHTML = '';
             
-            const sourceCounts = {}; // New: Count sources
+            const allUrls = [
+                ...SOURCES.direct.map(s => ({ ...s, decode: false })),
+                ...SOURCES.base64.map(s => ({ ...s, decode: true }))
+            ];
+            
+            const uniqueConfigs = new Map();
+            let completed = 0;
+            const startTime = Date.now();
+            
+            // Timer
+            const timer = setInterval(() => {
+                const seconds = Math.floor((Date.now() - startTime) / 1000);
+                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                const secs = String(seconds % 60).padStart(2, '0');
+                els.elapsedTime.textContent = `${mins}:${secs}`;
+            }, 1000);
 
-            allConfigurations.forEach(item => {
-                sourceCounts[item.source] = (sourceCounts[item.source] || 0) + 1; // Count sources
+            // Fetch in parallel but with limits isn't needed for this scale, mostly
+            const promises = allUrls.map(async (source) => {
+                try {
+                    const cleanUrl = convertGithubUrl(source.url);
+                    const res = await fetch(cleanUrl);
+                    if (!res.ok) throw new Error(res.status);
+                    let text = await res.text();
+                    
+                    if (source.decode) {
+                        try { text = atob(text.trim()); } catch(e) {}
+                    }
+
+                    const lines = text.split(/\r?\n/);
+                    lines.forEach(line => {
+                        line = line.trim();
+                        if (!line) return;
+
+                        // Try deeper decoding if needed
+                        if (!line.includes('://')) {
+                            try { line = atob(line); } catch(e) {}
+                        }
+
+                        // Basic Validation
+                        if (line.match(/^(vmess|vless|trojan|ss|ssr|warp):\/\//i)) {
+                            // Check for "Iran" source
+                            const isNational = source.url === CONFIG.iranConfigUrl;
+                            // Use config as key to remove duplicates
+                            if (!uniqueConfigs.has(line)) {
+                                uniqueConfigs.set(line, {
+                                    config: line,
+                                    source: source.name,
+                                    protocol: line.split(':')[0],
+                                    isNational: isNational
+                                });
+                            }
+                        }
+                    });
+
+                } catch (e) {
+                    console.warn(`Failed ${source.name}:`, e);
+                } finally {
+                    completed++;
+                    const pct = Math.round((completed / allUrls.length) * 100);
+                    els.progressBar.style.width = `${pct}%`;
+                    els.loadingText.textContent = `در حال دریافت... (${completed}/${allUrls.length})`;
+                }
             });
 
-            // Populate source filter
-            const sortedSources = Object.keys(sourceCounts).sort((a, b) => a.localeCompare(b, 'fa', { sensitivity: 'base' }));
+            await Promise.all(promises);
+            clearInterval(timer);
+            
+            state.allConfigs = Array.from(uniqueConfigs.values());
+            saveToCache(state.allConfigs);
+            finalizeDataLoad();
+        }
 
-            sortedSources.forEach(sourceName => {
-                const option = document.createElement('option');
-                option.value = sourceName;
-                option.textContent = `${sourceName} (${sourceCounts[sourceName]})`;
-                sourceFilterSelect.appendChild(option);
-            });
-
-            // Update total count
-            proxyCountSpan.textContent = `تعداد کل کانفیگ‌ها: ${allConfigurations.length}`;
-
-            // Apply current filters after updating counts
+        function finalizeDataLoad() {
+            els.loading.classList.remove('active');
+            els.filterSection.style.display = 'flex';
+            
+            updateFiltersUI();
+            updateLastUpdateText();
             applyFilters();
         }
 
-        /**
-         * Applies the selected filters and re-renders the proxy list.
-         */
-        function applyFilters() {
-            const selectedSource = sourceFilterSelect.value; // Get selected source
+        // --- Parsing & Display Logic ---
 
-            filteredConfigurations = allConfigurations.filter(item => {
-                const matchesSource = selectedSource === 'all' || item.source === selectedSource;
+        function parseConfig(configStr) {
+            let title = "کانفیگ بی نام";
+            let type = configStr.split(':')[0].toUpperCase();
+            
+            try {
+                if (type === 'VMESS' || type === 'VLESS') {
+                    const b64 = configStr.split('://')[1];
+                    // Try LZString then normal Base64
+                    let jsonStr;
+                    try { jsonStr = atob(b64); } catch { return { title, type }; }
+                    
+                    // Decode URI components for Persian names
+                    try { jsonStr = decodeURIComponent(escape(jsonStr)); } catch {}
 
-                return matchesSource; // Only filter by source
-            });
-
-            console.log(`Filtered configurations count: ${filteredConfigurations.length}`);
-            // Reset current index and clear display before loading filtered results
-            proxiesDiv.innerHTML = '';
-            currentProxyIndex = 0;
-            loadMoreProxies();
+                    const obj = JSON.parse(jsonStr);
+                    title = obj.ps || obj.add || title;
+                } else {
+                    // Simple parse for Trojan/SS
+                    const url = new URL(configStr);
+                    title = url.hash ? decodeURIComponent(url.hash.substring(1)) : url.hostname;
+                }
+            } catch (e) {
+                // Fallback: Just show first few chars
+                title = configStr.substring(0, 20) + '...';
+            }
+            return { title, type };
         }
 
-        /**
-         * Creates an HTML card for a given V2Ray/Xray config.
-         * @param {Object} item - The config object {config: string, protocol: string, country: string, isNational: boolean}.
-         * @returns {HTMLElement} The created card element.
-         */
-        function createProxyCard(item) {
-            const card = document.createElement('div');
-            card.className = 'proxy-card';
-
-            // Parse config for display title and details
-            const { displayTitle, displayDetails } = parseV2rayConfigForDisplay(item.config);
-
-            // Proxy Type Tag
-            const typeTag = document.createElement('span');
-            typeTag.className = 'proxy-type-tag';
-            typeTag.textContent = item.protocol.toUpperCase();
-            card.appendChild(typeTag);
-
-            // Source Tag (new)
-            const sourceTag = document.createElement('span');
-            sourceTag.className = 'source-tag'; // Use new class for styling
-            sourceTag.innerHTML = `<i class="fas fa-code-branch"></i> ${item.source}`; // Using a branch icon
-            card.appendChild(sourceTag);
-
-            // National Tag (if applicable) - adjust its position if source tag is added
-            if (item.isNational) {
-                const nationalTag = document.createElement('span');
-                nationalTag.className = 'national-tag';
-                nationalTag.innerHTML = '<i class="fas fa-flag"></i> ملی'; // Using a flag icon for national
-                // Adjust position if source tag is present. If source tag is at 70px, national tag can be at 40px
-                nationalTag.style.top = '40px'; 
-                card.appendChild(nationalTag);
-            }
-
-            // Config title
-            const titleElement = document.createElement('h4');
-            titleElement.textContent = displayTitle;
-            // Adjust padding for title if source tag is added
-            titleElement.style.paddingLeft = '100px'; // Keep existing padding
-            card.appendChild(titleElement);
-
-            // Optional: Display more details if available
-            if (displayDetails) {
-                const detailsElement = document.createElement('p');
-                detailsElement.className = 'proxy-details'; // Use new class for styling
-                detailsElement.textContent = displayDetails;
-                card.appendChild(detailsElement);
-            }
-
-            // Action buttons container
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'proxy-actions';
-
-            // Test Config button
-            const testButton = document.createElement('button');
-            testButton.innerHTML = '<i class="fas fa-bolt"></i> تست کانفیگ'; // Font Awesome icon
-            // Create a dedicated div for test results for this card
-            const testResultDisplay = document.createElement('div');
-            testResultDisplay.className = 'test-result-display'; // Apply initial styling
+        function createCard(item) {
+            const { title, type } = parseConfig(item.config);
             
-            testButton.onclick = () => {
-                testConfig(item.config, testResultDisplay); // Pass the specific result display element
-            };
-            actionsDiv.appendChild(testButton);
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const isNationalHtml = item.isNational ? 
+                `<span class="badge badge-national"><i class="fas fa-flag"></i> ایران</span>` : '';
 
-            // Copy to clipboard button
-            const copyButton = document.createElement('button');
-            copyButton.innerHTML = '<i class="fas fa-copy"></i> کپی لینک'; // Font Awesome icon
-            copyButton.onclick = () => {
-                copyToClipboard(item.config);
-            };
-            actionsDiv.appendChild(copyButton);
-
-            // QR code button
-            const qrButton = document.createElement('button');
-            qrButton.innerHTML = '<i class="fas fa-qrcode"></i> نمایش QR کد'; // Font Awesome icon
-            qrButton.onclick = () => {
-                showQrCode(item.config);
-            };
-            actionsDiv.appendChild(qrButton);
-
-            card.appendChild(actionsDiv);
-            card.appendChild(testResultDisplay); // Append the test result display div here
-
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="badge badge-protocol">${type}</span>
+                    ${isNationalHtml}
+                </div>
+                <h3 class="card-title">${title}</h3>
+                <div class="badge-source"><i class="fas fa-server"></i> ${item.source}</div>
+                <div class="card-meta" style="margin-top:10px;">
+                    ${item.config.substring(0, 40)}...
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn" onclick="copyToClipboard('${item.config}')">
+                        <i class="fas fa-copy"></i> کپی
+                    </button>
+                    <button class="card-btn" onclick="showQR('${item.config}')">
+                        <i class="fas fa-qrcode"></i> QR
+                    </button>
+                    <button class="card-btn btn-full" onclick="deepLink('${item.config}')" style="background:var(--primary); color:white; border:none;">
+                        <i class="fas fa-bolt"></i> اتصال مستقیم
+                    </button>
+                </div>
+            `;
             return card;
         }
 
-        /**
-         * Loads a batch of proxies and appends them to the DOM.
-         */
-        async function loadMoreProxies() {
-            if (isLoading) {
+        // --- Infinite Scroll & Rendering ---
+
+        function applyFilters() {
+            const source = els.sourceSelect.value;
+            const search = els.searchInput.value.toLowerCase();
+
+            state.filteredConfigs = state.allConfigs.filter(item => {
+                const matchSource = source === 'all' || item.source === source;
+                const matchSearch = !search || item.config.toLowerCase().includes(search) || 
+                                    (item.source && item.source.toLowerCase().includes(search));
+                return matchSource && matchSearch;
+            });
+
+            els.count.textContent = `${state.filteredConfigs.length} کانفیگ موجود`;
+            els.grid.innerHTML = '';
+            state.currentIndex = 0;
+            loadMore();
+        }
+
+        function loadMore() {
+            if (state.isLoading) return;
+            state.isLoading = true;
+
+            const next = state.filteredConfigs.slice(state.currentIndex, state.currentIndex + CONFIG.proxiesPerLoad);
+            if (next.length === 0) {
+                state.isLoading = false;
                 return;
             }
-
-            const filtered = filteredConfigurations; // Use the already filtered list
-            if (currentProxyIndex >= filtered.length) {
-                loadingMoreDiv.style.display = 'none';
-                if (filtered.length === 0 && proxiesDiv.innerHTML === '') {
-                    proxiesDiv.innerHTML = '<p class="loading-message" style="color:#ff6600;">هیچ نقطه اتصالی با فیلترهای انتخاب شده یافت نشد.</p>';
-                } else if (currentProxyIndex > 0) {
-                    loadingMoreDiv.textContent = 'تمام نقاط اتصال بارگذاری شدند.';
-                    loadingMoreDiv.style.display = 'block';
-                    loadingMoreDiv.style.color = '#555';
-                }
-                return;
-            }
-
-            isLoading = true;
-            loadingMoreDiv.style.display = 'block';
-            loadingMoreDiv.textContent = 'در حال بارگذاری نقاط اتصال بیشتر...';
-            console.log(`Loading batch of proxies. Current index: ${currentProxyIndex}, Filtered count: ${filtered.length}`);
-
-            const endIndex = Math.min(currentProxyIndex + proxiesPerLoad, filtered.length);
-            const batch = filtered.slice(currentProxyIndex, endIndex);
-            console.log(`Batch size: ${batch.length}`);
-
 
             const fragment = document.createDocumentFragment();
-            
-            // Generate cards
-            for (const item of batch) {
-                const cardElement = createProxyCard(item);
-                fragment.appendChild(cardElement);
-            }
-            proxiesDiv.appendChild(fragment);
+            next.forEach(item => fragment.appendChild(createCard(item)));
+            els.grid.appendChild(fragment);
 
-            currentProxyIndex = endIndex;
-            isLoading = false;
-
-            if (currentProxyIndex < filtered.length) {
-                loadingMoreDiv.style.display = 'none';
-            } else {
-                loadingMoreDiv.textContent = 'تمام نقاط اتصال بارگذاری شدند.';
-                loadingMoreDiv.style.display = 'block';
-                loadingMoreDiv.style.color = '#555';
-            }
+            state.currentIndex += CONFIG.proxiesPerLoad;
+            state.isLoading = false;
         }
 
-        /**
-         * Handles the scroll event to trigger loading more proxies.
-         */
-        function handleScroll() {
-            const scrollThreshold = 100;
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollThreshold) {
-                loadMoreProxies();
-            }
-        }
+        // --- Helpers ---
 
-        /**
-         * Shows the QR code modal with the given text.
-         * @param {string} text - The text to encode in the QR code.
-         */
-        function showQrCode(text) {
-            // Clear previous QR code
-            const context = qrCanvas.getContext('2d');
-            context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-
-            QRCode.toCanvas(qrCanvas, text, {
-                width: 250, // Fixed size for modal QR
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            }).catch(err => console.error('Error generating QR code:', err));
-            qrModal.classList.add('show');
-        }
-
-        qrModalClose.addEventListener('click', () => {
-            qrModal.classList.remove('show');
-        });
-
-        qrModal.addEventListener('click', (event) => {
-            if (event.target === qrModal) {
-                qrModal.classList.remove('show');
-            }
-        });
-
-        /**
-         * Formats time for display (MM:SS).
-         * @param {number} seconds - Total seconds.
-         * @returns {string} Formatted time string.
-         */
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            const paddedMinutes = String(minutes).padStart(2, '0');
-            const paddedSeconds = String(remainingSeconds).padStart(2, '0');
-            return `${paddedMinutes}:${paddedSeconds}`;
-        }
-
-        /**
-         * Shuffles an array in place.
-         * @param {Array} array - The array to shuffle.
-         * @returns {Array} The shuffled array.
-         */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        /**
-         * Copies 20 random configurations based on the current filter.
-         */
-        function copyRandom20Configs() {
-            const selectedSource = sourceFilterSelect.value;
-            const configsToSelect = [];
-            const selectedConfigSet = new Set();
-            const targetCount = 20;
-
-            if (selectedSource === 'all') {
-                const configsBySource = {};
-                allConfigurations.forEach(config => {
-                    if (!configsBySource[config.source]) {
-                        configsBySource[config.source] = [];
-                    }
-                    configsBySource[config.source].push(config);
-                });
-
-                const sourceNames = shuffleArray(Object.keys(configsBySource));
-                let remainingToSelect = targetCount;
-
-                for (const sourceName of sourceNames) {
-                    if (remainingToSelect <= 0) break;
-
-                    const sourceConfigs = shuffleArray([...configsBySource[sourceName]]);
-                    // Calculate how many to take from this source, trying to distribute evenly
-                    // Ensure we don't try to take more than what's available in this source
-                    const numToTake = Math.min(
-                        Math.ceil(remainingToSelect / (sourceNames.length - configsToSelect.length)), // Distribute remaining over remaining sources
-                        sourceConfigs.length // Don't take more than available in this source
-                    );
-
-                    let takenCount = 0;
-                    for (let i = 0; i < sourceConfigs.length && takenCount < numToTake; i++) {
-                        const config = sourceConfigs[i];
-                        if (!selectedConfigSet.has(config.config)) {
-                            configsToSelect.push(config);
-                            selectedConfigSet.add(config.config);
-                            takenCount++;
-                            remainingToSelect--;
-                        }
-                    }
-                }
-
-                // If still less than targetCount, pick remaining from all unique configs
-                // This handles cases where some sources might have very few configs,
-                // and the initial even distribution couldn't reach the target.
-                if (configsToSelect.length < targetCount) {
-                    const remainingOverallConfigs = shuffleArray(allConfigurations.filter(config => !selectedConfigSet.has(config.config)));
-                    for (let i = 0; i < remainingOverallConfigs.length && configsToSelect.length < targetCount; i++) {
-                        configsToSelect.push(remainingOverallConfigs[i]);
-                        selectedConfigSet.add(remainingOverallConfigs[i].config);
-                    }
-                }
-
-            } else {
-                // Specific source selected, pick randomly from filteredConfigurations
-                if (filteredConfigurations.length === 0) {
-                    showGlobalMessage('هیچ کانفیگی در این مخزن برای کپی کردن وجود ندارد.', 'error');
-                    return;
-                }
-                const shuffledFilteredConfigs = shuffleArray([...filteredConfigurations]);
-                for (let i = 0; i < shuffledFilteredConfigs.length && configsToSelect.length < targetCount; i++) {
-                    const config = shuffledFilteredConfigs[i];
-                    if (!selectedConfigSet.has(config.config)) { // Ensure uniqueness even within the filtered list
-                        configsToSelect.push(config);
-                        selectedConfigSet.add(config.config);
-                    }
-                }
-            }
-
-            if (configsToSelect.length > 0) {
-                const allText = configsToSelect.map(item => item.config).join('\n');
-                copyToClipboard(allText);
-            } else {
-                showGlobalMessage('کانفیگی برای کپی کردن یافت نشد.', 'error');
-            }
-        }
-
-
-        /**
-         * Main function to fetch all configurations, handle progress, and update UI.
-         * @param {boolean} forceFetch - If true, bypasses cache and forces a new fetch.
-         */
-        async function fetchAllConfigs(forceFetch = false) {
-            updateButton.disabled = true;
-            copyAllButton.disabled = true; // Disable copy all button during fetch
-            copyRandom20Button.disabled = true; // Disable random 20 button during fetch
-            filterBar.style.display = 'none'; // Ensure filters are hidden at start of fetch
-
-            loadingSpinner.style.display = 'block';
-            progressSection.style.display = 'block';
-            proxiesDiv.innerHTML = ''; // Clear current display
-
-            let fetchedAndProcessedConfigs = [];
-            const totalSources = allFetchUrls.length;
-            let sourcesFetched = 0;
-            const startTime = Date.now();
-
-            clearInterval(timerInterval); // Clear any existing timer
-            timerInterval = setInterval(() => {
-                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-                elapsedTimeSpan.textContent = formatTime(elapsedSeconds);
-            }, 1000);
-
-            for (const urlInfo of allFetchUrls) {
-                sourcesFetched++;
-                currentSourceSpan.textContent = `در حال واکشی منبع ${sourcesFetched} از ${totalSources}...`;
-                const progressPercentage = (sourcesFetched / totalSources) * 100;
-                progressBar.style.width = `${progressPercentage}%`;
-
-                const configs = await fetchContent(urlInfo);
-                fetchedAndProcessedConfigs = fetchedAndProcessedConfigs.concat(configs);
-            }
-
-            clearInterval(timerInterval);
-            const finalElapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-            elapsedTimeSpan.textContent = `زمان سپری شده: ${formatTime(finalElapsedSeconds)}`;
-            currentSourceSpan.textContent = `واکشی کامل شد.`;
-            
-            const uniqueConfigsMap = new Map();
-            fetchedAndProcessedConfigs.forEach(item => {
-                uniqueConfigsMap.set(item.config, item);
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('کپی شد!', 'success');
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('کپی شد!', 'success');
             });
-            allConfigurations = Array.from(uniqueConfigsMap.values());
-            console.log(`Total unique configurations after fetch: ${allConfigurations.length}`);
-            
-            saveConfigsToLocalStorage(allConfigurations);
-            updateFiltersAndCounts();
-            
-            loadingSpinner.style.display = 'none';
-            setTimeout(() => {
-                progressSection.style.display = 'none';
-                updateButton.disabled = false;
-                // Only show filters and copy all button if there are configs
-                if (allConfigurations.length > 0) {
-                    copyAllButton.disabled = false; // Re-enable copy all button
-                    copyRandom20Button.disabled = false; // Re-enable random 20 button
-                    filterBar.style.display = 'flex'; // Show filters after fetch
-                    copyAllButton.style.display = 'block'; // Show copy all button after fetch
-                    copyRandom20Button.style.display = 'block'; // Show random 20 button after fetch
-                } else {
-                    copyAllButton.disabled = true; // Keep disabled if no configs
-                    copyRandom20Button.disabled = true; // Keep disabled if no configs
-                    filterBar.style.display = 'none'; // Keep hidden if no configs
-                    copyAllButton.style.display = 'none'; // Keep hidden if no configs
-                    copyRandom20Button.style.display = 'none'; // Keep hidden if no configs
-                }
-            }, 2000);
         }
 
-        // Event listeners (moved inside DOMContentLoaded for safety)
-        // window.onload is replaced by DOMContentLoaded for better practice.
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM Content Loaded. Initializing...');
+        function deepLink(config) {
+            // Attempt to open in v2rayNG or similar apps
+            window.location.href = config;
+            // Also copy just in case
+            copyToClipboard(config);
+            showToast('کپی شد و در حال باز شدن...', 'info');
+        }
 
-            // Event listeners
-            sourceFilterSelect.addEventListener('change', applyFilters); // New event listener for source filter
-            updateButton.addEventListener('click', () => fetchAllConfigs(true));
-            copyAllButton.addEventListener('click', () => {
-                if (filteredConfigurations.length > 0) {
-                    const allText = filteredConfigurations.map(item => item.config).join('\n');
-                    copyToClipboard(allText);
-                } else {
-                    showGlobalMessage('کانفیگی برای کپی کردن وجود ندارد.', 'error');
-                }
+        function showQR(text) {
+            const canvas = document.getElementById('qrCanvas');
+            QRCode.toCanvas(canvas, text, { width: 250, margin: 2 }, function (error) {
+                if (error) console.error(error);
+                els.qrModal.classList.add('open');
             });
-            copyRandom20Button.addEventListener('click', copyRandom20Configs); // New event listener for random 20 button
-            window.addEventListener('scroll', handleScroll);
+        }
 
-            // Initial load logic
-            updateLastUpdatedTime();
-            if (!loadConfigsFromLocalStorage()) {
-                fetchAllConfigs(true);
-            }
-        });
+        function closeModal() {
+            els.qrModal.classList.remove('open');
+        }
+
+        function showToast(msg, type = 'info') {
+            document.getElementById('toastMessage').textContent = msg;
+            els.toast.classList.add('show');
+            setTimeout(() => els.toast.classList.remove('show'), 3000);
+        }
+
+        function saveToCache(data) {
+            try {
+                const payload = JSON.stringify({ data, time: Date.now() });
+                const compressed = LZString.compressToUTF16(payload);
+                localStorage.setItem(CONFIG.cacheKey, compressed);
+            } catch (e) { console.warn('Cache failed', e); }
+        }
+
+        function loadFromCache() {
+            try {
+                const compressed = localStorage.getItem(CONFIG.cacheKey);
+                if (!compressed) return null;
+                const json = LZString.decompressFromUTF16(compressed);
+                const { data, time } = JSON.parse(json);
+                if (Date.now() - time > CONFIG.cacheExpiration) return null;
+                return data;
+            } catch (e) { return null; }
+        }
+
+        function updateLastUpdateText() {
+            try {
+                const compressed = localStorage.getItem(CONFIG.cacheKey);
+                if(compressed) {
+                    const { time } = JSON.parse(LZString.decompressFromUTF16(compressed));
+                    const d = new Date(time);
+                    els.date.textContent = `بروزرسانی: ${d.getHours()}:${String(d.getMinutes()).padStart(2,0)}`;
+                }
+            } catch {}
+        }
+
+        function updateFiltersUI() {
+            const sources = [...new Set(state.allConfigs.map(c => c.source))].sort();
+            els.sourceSelect.innerHTML = '<option value="all">همه مخازن</option>';
+            sources.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                els.sourceSelect.appendChild(opt);
+            });
+        }
+
+        // --- Event Listeners ---
+
+        function setupEventListeners() {
+            // Scroll Observer for Infinite Scroll
+            const observer = new IntersectionObserver((entries) => {
+                if(entries[0].isIntersecting) loadMore();
+            }, { threshold: 0.1 });
+            observer.observe(els.loadMore);
+
+            // Controls
+            document.getElementById('updateButton').onclick = () => fetchAllData();
+            
+            document.getElementById('copyAllButton').onclick = () => {
+                if (!state.filteredConfigs.length) return showToast('لیست خالی است', 'error');
+                const text = state.filteredConfigs.map(c => c.config).join('\n');
+                copyToClipboard(text);
+                showToast(`کپی تمام ${state.filteredConfigs.length} کانفیگ`, 'success');
+            };
+
+            document.getElementById('copyRandomButton').onclick = () => {
+                if (!state.filteredConfigs.length) return;
+                const shuffled = [...state.filteredConfigs].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 20).map(c => c.config).join('\n');
+                copyToClipboard(selected);
+                showToast('20 کانفیگ رندوم کپی شد', 'success');
+            };
+
+            els.sourceSelect.onchange = applyFilters;
+            els.searchInput.oninput = applyFilters; // Real-time search
+            
+            els.qrModal.onclick = (e) => {
+                if(e.target === els.qrModal) closeModal();
+            };
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+
     </script>
 </body>
 </html>
