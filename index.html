@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>هاب اتصال امن پرو | VHub Pro</title>
-    <meta name="description" content="ابزار حرفه‌ای دریافت و مدیریت کانفیگ‌های ">
+    <meta name="description" content="ابزار حرفه‌ای دریافت و مدیریت اتصال‌های امن">
     <meta name="theme-color" content="#2563eb">
     
+    <!-- حل مشکل Favicon 404 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9373/9373307.png">
@@ -123,10 +126,12 @@
             transition: 0.2s;
             flex: 1;
             min-width: 120px;
+            font-size: 0.9rem;
         }
 
         .btn-primary { background: var(--primary); }
         .btn-sub { background: linear-gradient(45deg, #ec4899, #8b5cf6); }
+        .btn-random { background: var(--success); } /* استایل دکمه رندوم */
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         
         button:active { transform: scale(0.96); }
@@ -269,7 +274,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1><i class="fas fa-bolt"></i> V2Hub Pro</h1>
+            <h1><i class="fas fa-bolt"></i> VHub Pro</h1>
             <p style="color: var(--text-light); margin-top: 5px;">ابزار تخصصی اتصال آزاد</p>
         </div>
         <button id="installPwa" onclick="installApp()"><i class="fas fa-download"></i> نصب اپلیکیشن</button>
@@ -304,12 +309,14 @@
         <div class="action-bar">
             <button class="btn-primary" id="updateBtn"><i class="fas fa-sync-alt"></i> بروزرسانی</button>
             <button class="btn-sub" id="subLinkBtn"><i class="fas fa-link"></i> ساخت لینک اشتراک</button>
+            <!-- دکمه کپی رندوم اینجاست -->
+            <button class="btn-random" id="random20Btn"><i class="fas fa-random"></i> کپی 20 تا رندوم</button>
             <button class="btn-outline" id="copyAllBtn"><i class="fas fa-copy"></i> کپی همه</button>
         </div>
     </div>
 
     <div class="status-bar">
-        <span id="statsText">0 کانفیگ</span>
+        <span id="statsText">0 اتصال</span>
         <span id="updateTime">--:--</span>
     </div>
 
@@ -339,19 +346,16 @@
 <div class="toast" id="toast">پیام سیستم</div>
 
 <script>
-    // --- پیکربندی منابع (دقیقاً طبق فایل اصلی شما) ---
+    // --- پیکربندی منابع ---
     const SOURCES = [
-        // لینک‌های مستقیم (Direct)
         { url: "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt", name: "MahsaNet", type: "text" },
         { url: "https://raw.githubusercontent.com/sinabigo/Xray/main/@sinavm", name: "Sinabigo", type: "text" },
         { url: "https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt", name: "Ashkan-m", type: "text" },
         { url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity.txt", name: "MahdiBland", type: "text" },
-        { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP V2Ray", type: "text" },
+        { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY.txt", name: "HamedP Main", type: "text" },
         { url: "https://raw.githubusercontent.com/hamedp-71/Trojan/refs/heads/main/hp.txt", name: "HamedP Trojan", type: "text" },
         { url: "https://raw.githubusercontent.com/hamedp-71/openproxylist/refs/heads/main/V2RAY_RAW.txt", name: "HamedP Raw", type: "text" },
         { url: "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iran.txt", name: "Iran National", type: "text" },
-
-        // لینک‌های Base64
         { url: "https://raw.githubusercontent.com/imyebekhe/vpn-fail/refs/heads/main/sub-link", name: "imyebekhe", type: "base64" },
         { url: "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity", name: "MahdiBland SS", type: "base64" },
         { url: "https://raw.githubusercontent.com/AzadNetCH/Clash/main/AzadNet.txt", name: "AzadNet", type: "base64" },
@@ -361,7 +365,6 @@
         { url: "https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt", name: "davudsedft Purkow", type: "base64" }
     ];
 
-    // اضافه کردن لینک‌های MahsaNet MTN/MCI
     for (let i = 1; i <= 4; i++) {
         SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mtn/sub_${i}.txt`, name: `MahsaNet MTN ${i}`, type: "base64" });
         SOURCES.push({ url: `https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_${i}.txt`, name: `MahsaNet MCI ${i}`, type: "base64" });
@@ -389,7 +392,6 @@
 
         for (const source of SOURCES) {
             try {
-                // تبدیل لینک گیت‌هاب به Raw
                 let finalUrl = source.url;
                 if (finalUrl.includes("github.com") && finalUrl.includes("/blob/")) {
                     finalUrl = finalUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
@@ -401,12 +403,9 @@
 
                 if (source.type === 'base64') {
                     try { 
-                        // دیکود کردن کل فایل (برای لینک‌های سابسکرپشن)
                         const decodedFull = atob(text.trim());
                         text = decodedFull;
-                    } catch(e) {
-                         // اگر دیکود کامل نشد، شاید خط به خط باشه
-                    }
+                    } catch(e) {}
                 }
 
                 const lines = text.split(/\r?\n/);
@@ -415,16 +414,12 @@
                     line = line.trim();
                     if (!line) continue;
 
-                    // تلاش برای دیکود کردن خطوطی که ممکنه هنوز Base64 باشن
                     if (!line.includes('://')) {
                          try { line = atob(line); } catch(e) {}
                     }
 
                     if (line.match(/^(vmess|vless|trojan|ss|ssr|warp):\/\//i)) {
-                        // پارس کردن برای استخراج اطلاعات
                         const details = parseDetails(line);
-                        
-                        // کلید برای حذف تکراری (IP:Port)
                         const duplicateKey = `${details.ip}:${details.port}`;
 
                         if (!uniqueSet.has(duplicateKey)) {
@@ -449,7 +444,7 @@
         saveData();
         updateUI();
         ui.loading(false);
-        ui.toast(`موفق: ${state.all.length} کانفیگ سالم دریافت شد`, 'success');
+        ui.toast(`موفق: ${state.all.length} کانفیگ دریافت شد`, 'success');
     }
 
     // --- پارسر هوشمند ---
@@ -462,7 +457,6 @@
 
             if (proto === 'vmess' || proto === 'vless') {
                 if (proto === 'vmess' && !config.includes('@')) {
-                    // JSON format
                     try {
                         const b64 = config.split('://')[1];
                         const json = JSON.parse(decodeURIComponent(escape(atob(b64))));
@@ -470,7 +464,6 @@
                         security = json.tls || 'none';
                     } catch(e) {}
                 } else {
-                    // URL format
                     const url = new URL(config);
                     ip = url.hostname;
                     port = url.port;
@@ -588,18 +581,31 @@
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         
+        // اصلاح ارور کاراکترهای فارسی در btoa
+        const base64Content = btoa(unescape(encodeURIComponent(content)));
+
         const modalBody = document.getElementById('modalBody');
         document.getElementById('modalTitle').innerText = 'لینک اشتراک فایل';
         modalBody.innerHTML = `
-            <p style="font-size:0.9rem; color:#666;">دانلود فایل اشتراک برای استفاده در vNG:</p>
-            <a href="${url}" download="v2hub_sub.txt" class="btn-primary" style="text-decoration:none; display:flex; margin-bottom:10px;">
+            <p style="font-size:0.9rem; color:#666;">دانلود فایل اشتراک برای استفاده در نرم‌افزار:</p>
+            <a href="${url}" download="vhub_sub.txt" class="btn-primary" style="text-decoration:none; display:flex; margin-bottom:10px;">
                 <i class="fas fa-download"></i> دانلود فایل
             </a>
-            <button class="btn-outline" style="width:100%" onclick="copy('${window.btoa(content)}')">
+            <button class="btn-outline" style="width:100%" onclick="copy('${base64Content}')">
                  کپی کد Base64 (برای ایمپورت)
             </button>
         `;
         document.getElementById('modal').classList.add('open');
+    }
+
+    function copyRandom20() {
+        if (state.filtered.length === 0) return ui.toast('لیست خالی است', 'error');
+        
+        const shuffled = [...state.filtered].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 20).map(i => i.config).join('\n');
+        
+        copy(selected);
+        ui.toast('20 کانفیگ رندوم کپی شد', 'success');
     }
 
     async function checkIp(ip) {
@@ -610,12 +616,15 @@
         el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         
         try {
-            const res = await fetch(`http://ip-api.com/json/${ip}?fields=country,isp`);
+            // حل مشکل Mixed Content با استفاده از HTTPS
+            const res = await fetch(`https://ipapi.co/${ip}/json/`);
+            if(!res.ok) throw new Error('Limit');
             const data = await res.json();
-            el.innerHTML = `${data.country} | ${data.isp.split(' ')[0]}`;
+            el.innerHTML = `${data.country_name} | ${data.org}`;
             el.style.color = 'var(--success)';
         } catch(e) {
-            el.innerHTML = 'خطا';
+            el.innerHTML = 'خطا/محدودیت';
+            el.style.color = 'var(--danger)';
         }
     }
 
@@ -637,7 +646,8 @@
     }
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+        // جلوگیری از ارور قرمز در کنسول اگر فایل sw.js وجود نداشت
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
     // --- UI Helpers ---
@@ -653,14 +663,25 @@
     };
 
     function connect(conf) {
+        // تلاش برای باز کردن برنامه
         window.location.href = conf;
+        // همیشه کپی هم انجام شود تا اگر برنامه باز نشد کاربر بتواند پیست کند
         copy(conf);
-        ui.toast('لینک کپی شد و برنامه باز شد', 'success');
+        ui.toast('لینک کپی شد (اگر برنامه باز نشد، دستی پیست کنید)', 'success');
     }
 
     function copy(text) {
-        navigator.clipboard.writeText(text);
-        ui.toast('کپی شد!', 'success');
+        navigator.clipboard.writeText(text).then(() => {
+            ui.toast('کپی شد!', 'success');
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            ui.toast('کپی شد!', 'success');
+        });
     }
 
     function showQr(text) {
@@ -701,7 +722,6 @@
             const raw = localStorage.getItem(CONFIG.key);
             if (raw) {
                 const data = JSON.parse(LZString.decompressFromUTF16(raw));
-                // Cache valid for 4 hours
                 if (Date.now() - data.time < 14400000) {
                     state.all = data.items;
                     updateUI();
@@ -716,6 +736,7 @@
         document.getElementById('updateBtn').onclick = fetchAll;
         document.getElementById('subLinkBtn').onclick = generateSubLink;
         document.getElementById('copyAllBtn').onclick = () => copy(state.filtered.map(i => i.config).join('\n'));
+        document.getElementById('random20Btn').onclick = copyRandom20;
         
         ['protocolFilter', 'networkFilter', 'sourceFilter', 'searchInput'].forEach(id => {
             document.getElementById(id).addEventListener('input', filterData);
